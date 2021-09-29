@@ -1,0 +1,34 @@
+# PAN SSH init
+# nic@boet.cc
+
+#the base cli prompt to expect
+set prompt "$config(username)@$hostname*active?"
+
+#exec ssh-keygen -R $hostname
+spawn ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $config(username)@$hostname
+
+expect {
+    timeout { send_user "\nFailed to get password prompt\n"; exit 1 }
+    eof { send_user "\nSSH failure for $hostname\n"; exit 1 }
+    "Password:"
+}
+send "$config(password)\r"
+
+expect {
+    timeout { send_user "\nLogin failed. Password incorrect.\n"; exit 1}
+    -nocase $prompt
+}
+
+
+#disable terminal paging
+send "set cli pager off\r"
+sleep 1
+myexpect "$prompt>"
+
+#enable cli scripting
+send "set cli scripting-mode on\r"
+sleep 1
+myexpect "$prompt>"
+
+
+

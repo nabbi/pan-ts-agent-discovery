@@ -1,0 +1,63 @@
+#!/usr/bin/expect
+# nic@boet.cc
+
+log_user 0
+set timeout 45
+
+set debug 0
+set trace 0
+
+proc help {} {
+	puts "PAN: display configured Terminal Server Agents in set format"
+    puts "Usage:   $::argv0 <panorama>"
+	exit 64
+} 
+
+set path [file dirname [file normalize [info script]]]
+source $path/myexpect.exp
+source $path/../inc/config.tcl
+
+#set vars
+if { [llength $argv] != 1 } {
+    puts "Incorrect number of arguments"
+	[help]
+}
+
+set hostname [string tolower [lindex $argv 0]]
+	
+# increase buffer size
+#set matchmax_orig [match_max]
+match_max 60000
+
+#spawn ssh
+source $path/ssh-init.exp
+
+###########
+
+#output config with set commands
+send "set cli config-output-format set\r"
+myexpect "$prompt>"
+
+#enter config mode
+send "configure\r"
+myexpect "$prompt#"
+
+log_user 1
+#send "show user ts-agent statistics | match not-conn\r"
+send "show | match \"ts-agent.*host\"\r"
+myexpect "$prompt#"
+log_user 0
+
+#exit config mode
+send "exit\r"
+myexpect "$prompt>"
+
+
+###########
+
+#close
+send "exit\r"
+expect eof
+
+##puts "Success"
+exit 0

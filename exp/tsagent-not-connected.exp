@@ -1,0 +1,48 @@
+#!/usr/bin/expect
+# nic@boet.cc
+
+log_user 0
+set timeout 45
+
+set debug 0
+set trace 0
+
+proc help {} {
+	puts "PAN: display non-connected Terminal Server Agents"
+    puts "Usage:   $::argv0 <firewall>"
+	exit 64
+} 
+
+set path [file dirname [file normalize [info script]]]
+source $path/myexpect.exp
+source $path/../inc/config.tcl
+
+#set vars
+if { [llength $argv] != 1 } {
+    puts "Incorrect number of arguments"
+	[help]
+}
+
+set hostname [string tolower [lindex $argv 0]]
+
+# increase buffer size
+#set matchmax_orig [match_max]
+match_max 60000
+
+#spawn ssh
+source $path/ssh-init.exp
+
+###########
+log_user 1
+send "show user ts-agent statistics | match not-conn\r"
+myexpect "$prompt>"
+log_user 0
+
+###########
+
+#close connection
+send "exit\r"
+expect eof
+
+##puts "Success"
+exit 0
