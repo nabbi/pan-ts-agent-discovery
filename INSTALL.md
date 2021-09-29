@@ -2,7 +2,8 @@ YMMV on adjusting paths to suit your needs
 
 # clone repo
 ```
-git clone https://github.com/nabbi/pan-ts-agent-discovery ~/bin/pan-ts-agent
+cd ~/bin
+git clone https://github.com/nabbi/pan-ts-agent-discovery
 ```
 
 # config
@@ -31,7 +32,7 @@ chmod g+w /var/log/pan-tsagent*.log
 non-privileged account
 ```
 # PAN TS Agent Discover
-15 * * * *     ~/bin/pan-ts-agent/discover.tcl >> /var/log/pan-tsagent-discover.log 2>&1
+15 * * * *     ~/bin/pan-ts-agentdiscovery/discover.tcl >> /var/log/pan-tsagent-discover.log 2>&1
 # PAN TS Agent Purge - do not run at same time as discovery add!
-30 5 * * *     ~/bin/pan-ts-agent/purge.tcl >> /var/log/pan-tsagent-purge.log 2>&1
+30 5 * * *     ~/bin/pan-ts-agent-discovery/purge.tcl >> /var/log/pan-tsagent-purge.log 2>&1
 ```
