@@ -1,6 +1,6 @@
 # PAN TS Agent Discovery
 
-Automation routines for provisioning (Palo Alto Networks Terminal Services Agents)[https://docs.paloaltonetworks.com/compatibility-matrix/terminal-services-ts-agent.html] into Panorama from dynamically deployed (Citrix XenApp)[https://www.citrix.com/] "golden" images.
+Automation routines for provisioning [Palo Alto Networks Terminal Services Agents](https://docs.paloaltonetworks.com/compatibility-matrix/terminal-services-ts-agent.html) into Panorama from dynamically deployed [Citrix XenApp](https://www.citrix.com/) "golden" images.
 
 I run the discovery hourly and purge daily (after the overnight maintenance server reboots)
 
