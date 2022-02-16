@@ -58,7 +58,7 @@ foreach ip $alive {
             ##if ($trace) { puts "trace: $ip $host $fqdn\n" }
 
             #check if we already have this configured
-            if {[string match "*ts-agent $host*" $panorama] } {
+            if {[string match "*$config(vsys) ts-agent $host*" $panorama] } {
                 if ($debug) { puts "skip $host agent already configured" }
             } else {
                 if ($info) { puts "new $host agent add into panorama" }

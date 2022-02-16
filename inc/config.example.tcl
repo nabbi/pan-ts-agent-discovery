@@ -22,6 +22,9 @@ set config(password) {password123}
 # Panorama configuration template name for where ts-agents are defined
 set config(template) {temp_shared}
 
+# Virtual System name for where ts-agets are define
+set config(vsys) {vsys1}
+
 # template-stacks for performing commit-all
 set config(templatestacks) {stack_once stack_two}
 

@@ -49,13 +49,13 @@ if {[string match $action "add"]} {
 	foreach i $input {
 		set object [lindex [split $i ","] 0]
 		set hostname [lindex [split $i ","] 1]
-		send "set template $config(template) config vsys vsys-primary ts-agent $object host $hostname port 5009 disabled no\r"
+		send "set template $config(template) config vsys $config(vsys) ts-agent $object host $hostname port 5009 disabled no\r"
 		myexpect "$prompt#"
 	}
 
 } elseif { [string match $action "delete"] } {
 	foreach object $input {
-        send "delete template $config(template) config vsys vsys-primary ts-agent $object\r"
+        send "delete template $config(template) config vsys $config(vsys) ts-agent $object\r"
 		myexpect "$prompt#"
     }
 
