@@ -1,4 +1,5 @@
 YMMV on adjusting paths to suit your needs
+Dockerfile is experimental (please provide feedback or PR)
 
 # clone repo
 ```
