@@ -24,6 +24,7 @@ chmod g+w /var/log/pan-tsagent*.log
     rotate 90
     daily
     missingok
+    compress
     sharedscripts
 }
 ```
