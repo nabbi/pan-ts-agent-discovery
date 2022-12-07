@@ -8,7 +8,10 @@ set debug 0
 set trace 0
 
 set path [file dirname [file normalize [info script]]]
-source $path/inc/config.tcl
+if { [catch { source $path/inc/config.tcl }] } {
+    puts "config.tcl does not exist, please create it from config.tcl.example"
+    exit 1
+}
 source $path/inc/common-proc.tcl
 
 

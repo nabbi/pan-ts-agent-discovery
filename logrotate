@@ -1,7 +1,8 @@
 # PAN TS Agent
-/var/log/pan-*.log {
+/var/log/paloalto/pan-*.log {
     rotate 90
     daily
     missingok
     compress
+    nocreate
 }
