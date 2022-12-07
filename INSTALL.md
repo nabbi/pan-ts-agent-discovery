@@ -1,16 +1,40 @@
-YMMV on adjusting paths to suit your needs
-Dockerfile is experimental (please provide feedback or PR)
+# Docker
+Dockerfile is experimental yet should be super good enough (please provide feedback or PR if it isn't)
 
-# clone repo
+## clone repo
+```
+git clone https://github.com/nabbi/pan-ts-agent-discovery
+cd pan-ts-agent-discovery
+```
+
+## Build
+Once config.tcl is defined, build your custom image with:
+```
+docker build .
+```
+
+This will build everything in your local repo (not cloning from github) so you can customize the crontab or code to test within your custom deployment.
+
+
+## Run
+Copy the image whereever you spin your containers.
+```
+docker run -d <hash>
+```
+
+# Manual
+YMMV on adjusting paths
+
+## clone repo
 ```
 cd ~/bin
 git clone https://github.com/nabbi/pan-ts-agent-discovery
 ```
 
-# config
+## config
 Define inc/config.tcl from inc/config.example.tcl
 
-# initialize log files
+## initialize log files
 writable by the non-privileged account cron jobs are ran as
 ```
 touch /var/log/pan-tsagent-discover.log /var/log/pan-tsagent-purge.log
@@ -18,7 +42,7 @@ chgrp $(USER) /var/log/pan-tsagent*.log
 chmod g+w /var/log/pan-tsagent*.log
 ```
 
-# logrotate
+## logrotate
 /etc/logrotate.d/local-logs
 ```
 /var/log/pan-*.log {
@@ -30,7 +54,7 @@ chmod g+w /var/log/pan-tsagent*.log
 }
 ```
 
-# crontab
+## crontab
 non-privileged account
 ```
 # PAN TS Agent Discover

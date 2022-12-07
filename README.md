@@ -24,3 +24,6 @@ Removes stale not-connected PAN TS Agents from Panorama
 
 Changes are committed and pushed to defined template stacks
 
+##  Install
+
+See [INSTALL](INSTALL.md) for more hints on setting up your environment, a [Dockerfile](Dockerfile) exists now too.
