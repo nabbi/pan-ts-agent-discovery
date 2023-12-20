@@ -4,9 +4,6 @@
 log_user 0
 set timeout 45
 
-set debug 0
-set trace 0
-
 proc help {} {
 	puts "PAN: display non-connected Terminal Server Agents"
     puts "Usage:   $::argv0 <firewall>"
