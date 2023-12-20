@@ -8,9 +8,9 @@ set debug 0
 set trace 0
 
 proc help {} {
-	puts "PAN: display configured Terminal Server Agents in set format"
+    puts "PAN: display configured Terminal Server Agents in set format"
     puts "Usage:   $::argv0 <panorama>"
-	exit 64
+    exit 64
 } 
 
 set path [file dirname [file normalize [info script]]]
@@ -20,11 +20,11 @@ source $path/../inc/config.tcl
 #set vars
 if { [llength $argv] != 1 } {
     puts "Incorrect number of arguments"
-	[help]
+    [help]
 }
 
 set hostname [string tolower [lindex $argv 0]]
-	
+
 # increase buffer size
 #set matchmax_orig [match_max]
 match_max 60000

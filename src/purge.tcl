@@ -27,29 +27,29 @@ set notconn [myexec $path/exp/tsagent-not-connected.exp $config(firewall)]
 if ($info) { puts "## Checking config for stale TS Agents\n" }
 foreach n [split $notconn "\n"] {
 
-	#filter input
-	if {[string match "*not-conn:*" $n]} {
-		set object [lindex $n 0]
-		set hostname [lindex $n 1]
+    #filter input
+    if {[string match "*not-conn:*" $n]} {
+        set object [lindex $n 0]
+        set hostname [lindex $n 1]
 
-		#double check that tls socket is not listening
+        #double check that tls socket is not listening
         #this protects against a momentary connection glitch
-		if {! [mytsagent $hostname]} {
-			if ($info) { puts "delete $object idle agent" }
+        if {! [mytsagent $hostname]} {
+            if ($info) { puts "delete $object idle agent" }
             log "info" "delete ts-agent $hostname"
             lappend delete "$object"
-		} else {
-			if ($debug) { puts "keep $object agent was found" }
-		}
+        } else {
+            if ($debug) { puts "keep $object agent was found" }
+        }
 
-	}
+    }
 }
 
 # perform the delete if needed
 if {[string length $delete] > 0} {
     if ($info) { puts "## Deleting stale agents from Panorama\n"}
     if ($debug) { puts "debug delete::$delete"}
-	set d [myexec $path/exp/tsagent-modify.exp delete $config(panorama) $delete]
+    set d [myexec $path/exp/tsagent-modify.exp delete $config(panorama) $delete]
 }
 
 

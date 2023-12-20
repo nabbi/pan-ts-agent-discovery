@@ -24,7 +24,7 @@ if ($info) { puts "## ICMP discovery\n" }
 set alive {}
 foreach n $config(networks) {
     if ($debug) { puts "debug: icmp ping: $n\n" }
-	#returned value is a list. list-concatenate together
+    #returned value is a list. list-concatenate together
     set alive [list {*}$alive {*}[myfping $n]]
     ##if ($trace) { puts "trace: $alive\n" }
 }
@@ -39,7 +39,7 @@ if ($trace) { puts "trace: $alive\n" }
 foreach ip $alive {
 
     #test if tls socket is listening
-	if {[mytsagent $ip]} {
+    if {[mytsagent $ip]} {
 
         #lookup hostname
         set dig [mydig $ip]
@@ -80,7 +80,7 @@ foreach ip $alive {
 if {[string length $add] > 0} {
     if ($info) { puts "## Adding new agents into $config(panorama)\n"}
     if ($debug) { puts "debug add:$add"}
-	set a [myexec $path/exp/tsagent-modify.exp add $config(panorama) $add]
+    set a [myexec $path/exp/tsagent-modify.exp add $config(panorama) $add]
 }
 
 
