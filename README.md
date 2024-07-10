@@ -4,7 +4,6 @@ Automation routines for provisioning [Palo Alto Networks Terminal Services Agent
 
 ![traffic flows](https://raw.githubusercontent.com/nabbi/pan-ts-agent-discovery/master/flows.png)
 
-I run the discovery hourly and purge daily (after the overnight maintenance server reboots)
 
 ##  discover.tcl
 
@@ -25,6 +24,14 @@ Removes stale not-connected PAN TS Agents from Panorama
 - removes config from panorama
 
 Changes are committed and pushed to defined template stacks
+
+## inc/config.tcl
+
+Create your local [inc/config.tcl](src/inc/config.example.tcl) file.
+
+## crontab
+
+I run the discovery hourly and purge daily (after the overnight server reboot maintence window)
 
 ##  Install
 

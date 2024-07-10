@@ -29,23 +29,29 @@ docker run -d <hash>
 
 # Manual
 
-YMMV on adjusting paths
+YMMV
 
 ## dependencies
 
-These packages / commands should be in the system paths
+These commands should be in the system default paths
 
 * curl
 * dig
 * echo
+* expect
 * fping
 * logger
 * openssl
 * ssh
 * ssh-keygen
 * tcl
-* tcllib
 * timeout
+
+### Ubuntu
+
+```shell
+sudo apt install fping expect
+```
 
 ## clone repo
 
@@ -72,7 +78,7 @@ chmod -R g+w /var/log/paloalto
 ## logrotate
 /etc/logrotate.d/local-logs
 
-```Logrotate
+```logrotate
 /var/log/paloalto/pan-*.log {
     rotate 90
     daily
@@ -86,7 +92,7 @@ chmod -R g+w /var/log/paloalto
 
 non-privileged account
 
-```Cron
+```cron
 # PAN TS Agent Discover
 15 * * * *     ~/bin/pan-ts-agentdiscovery/discover.tcl >> /var/log/pan-tsagent-discover.log 2>&1
 # PAN TS Agent Purge - do not run at same time as discovery add!
