@@ -31,7 +31,7 @@ Create your local [inc/config.tcl](src/inc/config.example.tcl) file.
 
 ## crontab
 
-I run the [crontab](contab) discovery hourly and purge daily (after the overnight server reboot maintenance window).
+I run the [crontab](crontab) discovery hourly and purge daily (after the overnight server reboot maintenance window).
 
 Use the provided [logrotate](logrotate) to manage the logs files this generates.
 
