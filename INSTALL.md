@@ -1,15 +1,18 @@
 # Docker
+
 Dockerfile is experimental yet should be super good enough (please provide feedback or PR if it isn't)
 
 ## clone repo
-```
+
+```shell
 git clone https://github.com/nabbi/pan-ts-agent-discovery
 cd pan-ts-agent-discovery
 ```
 
 ## Build
 Once config.tcl is defined, build your custom image with:
-```
+
+```shell
 docker build .
 ```
 
@@ -17,35 +20,60 @@ This will build everything in your local repo (not cloning from github) so you c
 
 
 ## Run
+
 Copy the image whereever you spin your containers.
-```
+
+```shell
 docker run -d <hash>
 ```
 
 # Manual
+
 YMMV on adjusting paths
 
+## dependencies
+
+These packages / commands should be in the system paths
+
+* curl
+* dig
+* echo
+* fping
+* logger
+* openssl
+* ssh
+* ssh-keygen
+* tcl
+* tcllib
+* timeout
+
 ## clone repo
-```
+
+```shell
 cd ~/bin
 git clone https://github.com/nabbi/pan-ts-agent-discovery
 ```
 
 ## config
+
 Define inc/config.tcl from inc/config.example.tcl
 
 ## initialize log files
+
 writable by the non-privileged account cron jobs are ran as
-```
-touch /var/log/pan-tsagent-discover.log /var/log/pan-tsagent-purge.log
-chgrp $(USER) /var/log/pan-tsagent*.log
-chmod g+w /var/log/pan-tsagent*.log
+
+```shell
+mkdir /var/log/paloalto
+touch /var/log/paloalto/pan-tsagent-discover.log /var/log/paloalto/pan-tsagent-purge.log
+chgrp -R $(USER) /var/log/paloalto
+chmod -R g+w /var/log/paloalto
 ```
 
 ## logrotate
 /etc/logrotate.d/local-logs
-```
-/var/log/pan-*.log {
+
+```Logrotate
+/var/log/paloalto/pan-*.log {
     rotate 90
     daily
     missingok
@@ -55,10 +83,13 @@ chmod g+w /var/log/pan-tsagent*.log
 ```
 
 ## crontab
+
 non-privileged account
-```
+
+```Cron
 # PAN TS Agent Discover
 15 * * * *     ~/bin/pan-ts-agentdiscovery/discover.tcl >> /var/log/pan-tsagent-discover.log 2>&1
 # PAN TS Agent Purge - do not run at same time as discovery add!
 30 5 * * *     ~/bin/pan-ts-agent-discovery/purge.tcl >> /var/log/pan-tsagent-purge.log 2>&1
 ```
+
