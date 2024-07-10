@@ -25,13 +25,15 @@ Removes stale not-connected PAN TS Agents from Panorama
 
 Changes are committed and pushed to defined template stacks
 
-## inc/config.tcl
+## configuration
 
 Create your local [inc/config.tcl](src/inc/config.example.tcl) file.
 
 ## crontab
 
-I run the discovery hourly and purge daily (after the overnight server reboot maintence window)
+I run the [crontab](contab) discovery hourly and purge daily (after the overnight server reboot maintenance window).
+
+Use the provided [logrotate](logrotate) to manage the logs files this generates.
 
 ##  Install
 

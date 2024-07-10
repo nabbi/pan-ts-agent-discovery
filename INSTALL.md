@@ -21,7 +21,7 @@ This will build everything in your local repo (not cloning from github) so you c
 
 ## Run
 
-Copy the image whereever you spin your containers.
+Copy the image where ever you spin your containers.
 
 ```shell
 docker run -d <hash>
@@ -76,7 +76,7 @@ chmod -R g+w /var/log/paloalto
 ```
 
 ## logrotate
-/etc/logrotate.d/local-logs
+/etc/logrotate.d/pan-tsa-discovery
 
 ```logrotate
 /var/log/paloalto/pan-*.log {
@@ -94,8 +94,8 @@ non-privileged account
 
 ```cron
 # PAN TS Agent Discover
-15 * * * *     ~/bin/pan-ts-agentdiscovery/discover.tcl >> /var/log/pan-tsagent-discover.log 2>&1
+15 * * * *     ~/pan-ts-agent-discovery/src/discover.tcl >> /var/log/paloalto/pan-tsagent-discover.log 2>&1
 # PAN TS Agent Purge - do not run at same time as discovery add!
-30 5 * * *     ~/bin/pan-ts-agent-discovery/purge.tcl >> /var/log/pan-tsagent-purge.log 2>&1
+30 5 * * *     ~/pan-ts-agent-discovery/src/purge.tcl >> /var/log/paloalto/pan-tsagent-purge.log 2>&1
 ```
 
