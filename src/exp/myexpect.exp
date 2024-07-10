@@ -5,52 +5,52 @@
 proc myexpect {p} {
 
     expect {
-        #protect our coding below from being at the incorrect cmd prompt level
+        # protect our coding below from being at the incorrect cmd prompt level
         timeout {
             send_user "\n## Timeout occured. Did not get the expected prompt!\n"
             exit 1
         }
-        #protect against incorrect commands or syntax issues
+        # protect against incorrect commands or syntax issues
         "Unknown command" {
             send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
             exit 1
         }
-        #WARN against the removal of non-existent objects
+        # WARN against the removal of non-existent objects
         "Object doesn't exist" {
             send_user "\n## Did you attempt to delete a record which was not present!?\n"
             send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
             exit 65
         }
         
-        #WARNING: The running configuration is not currently synchronized to the HA peer, and therefore, this commit will only be applied to the local device.
-        #Please synchronize the peers by running 'request high-availability sync-to-remote running-config' first.
-        #Would you like to proceed with commit? (y or n)
+        # WARNING: The running configuration is not currently synchronized to the HA peer, and therefore, this commit will only be applied to the local device.
+        # Please synchronize the peers by running 'request high-availability sync-to-remote running-config' first.
+        # Would you like to proceed with commit? (y or n)
         "WARNING: The running configuration is not currently synchronized to the HA peer" {
             send_user "\n## local firewall config not synced\n"
             send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
             exit 1
         }
 
-        #unknown errors?
+        # unknown errors?
         -nocase "error" {
             send_user "\n## unknown error -- please report this condition\n"
             send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
             exit 1
         }
-        #unknown invalid?
+        # unknown invalid?
         -nocase "invalid" {
             send_user "\n## unknown invalid -- please report this condition\n"
             send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
             exit 1
         }
-        #unknown fail?
+        # unknown fail?
         -nocase "fail" {
             send_user "\n## unknown fail -- please report this condition\n"
             send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
             exit 1
         }
 
-        #else just presume the cmd worked and we got the expected
+        # else just presume the cmd worked and we got the expected
         -nocase $p
 
     }

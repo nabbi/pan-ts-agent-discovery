@@ -16,7 +16,7 @@ source $path/myexpect.exp
 source $path/../inc/config.tcl
 
 
-#set vars
+# define vars
 if { [llength $argv] != 3 } {
     puts "Incorrect number of arguments"
     [help]
@@ -26,17 +26,17 @@ set action [string tolower [lindex $argv 0]]
 set hostname [string tolower [lindex $argv 1]]
 set input [string tolower [lindex $argv 2]]
 
-#spawn ssh
+# spawn ssh
 source $path/ssh-init.exp
 
 
 ###########
 
-#output config with set commands
+# output config with set commands
 send "set cli config-output-format set\r"
 myexpect "$prompt>"
 
-#enter config mode
+# enter config mode
 send "configure\r"
 myexpect "$prompt#"
 
@@ -59,14 +59,14 @@ if {[string match $action "add"]} {
 }
 
 
-#commit comment - escaping spaces was not running clean. do not use them
+# commit comment - escaping spaces was not running clean. do not use them
 set description "BackgroundInfrastructureTask-TerminalServicesAgent"
 
 # commit
 send "commit description $description partial admin $config(username)\n"
 myexpect "$prompt#"
 
-#exit config mode
+# exit config mode
 send "exit\r"
 myexpect "$prompt>"
 
@@ -78,7 +78,7 @@ foreach stack $config(templatestacks) {
 
 ###########
 
-#close
+# close shell
 send "exit\r"
 expect eof
 

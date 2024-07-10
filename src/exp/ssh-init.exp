@@ -1,7 +1,7 @@
 # PAN SSH init
 # nic@boet.cc
 
-#the base cli prompt to expect
+# the base cli prompt to expect
 set prompt "$config(username)@$hostname*active?"
 
 #exec ssh-keygen -R $hostname
@@ -20,15 +20,14 @@ expect {
 }
 
 
-#disable terminal paging
+# disable terminal paging
 send "set cli pager off\r"
 sleep 1
 myexpect "$prompt>"
 
-#enable cli scripting
+# enable cli scripting
 send "set cli scripting-mode on\r"
 sleep 1
 myexpect "$prompt>"
-
 
 

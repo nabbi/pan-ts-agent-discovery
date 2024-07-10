@@ -14,7 +14,7 @@ set path [file dirname [file normalize [info script]]]
 source $path/myexpect.exp
 source $path/../inc/config.tcl
 
-#set vars
+# define vars
 if { [llength $argv] != 1 } {
     puts "Incorrect number of arguments"
 	[help]
@@ -26,7 +26,7 @@ set hostname [string tolower [lindex $argv 0]]
 #set matchmax_orig [match_max]
 match_max 60000
 
-#spawn ssh
+# spawn ssh
 source $path/ssh-init.exp
 
 ###########
@@ -37,7 +37,7 @@ log_user 0
 
 ###########
 
-#close connection
+# close connection
 send "exit\r"
 expect eof
 

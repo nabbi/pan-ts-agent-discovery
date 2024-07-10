@@ -19,7 +19,7 @@ set time [clock format [clock seconds] -format "%Y-%m-%d %H:%M"]
 if ($info) { puts "## Start PAN TS Agent Purge $time\n" }
 
 
-##Delete
+## Delete
 set delete {}
 # fetch not-connected terminal services agents from firewall
 set notconn [myexec $path/exp/tsagent-not-connected.exp $config(firewall)]
@@ -27,13 +27,13 @@ set notconn [myexec $path/exp/tsagent-not-connected.exp $config(firewall)]
 if ($info) { puts "## Checking config for stale TS Agents\n" }
 foreach n [split $notconn "\n"] {
 
-    #filter input
+    # filter input
     if {[string match "*not-conn:*" $n]} {
         set object [lindex $n 0]
         set hostname [lindex $n 1]
 
-        #double check that tls socket is not listening
-        #this protects against a momentary connection glitch
+        # double check that tls socket is not listening
+        # this protects against a momentary connection glitch
         if {! [mytsagent $hostname]} {
             if ($info) { puts "delete $object idle agent" }
             log "info" "delete ts-agent $hostname"

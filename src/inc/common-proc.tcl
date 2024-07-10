@@ -3,7 +3,7 @@
 exec tclsh "$0" "$@"
 # nic@boet.cc
 
-#shothand the logger
+# shothand our logger
 proc log {level msg} {
     set m [regsub -all "\n" ${msg} " :: "]
     exec /usr/bin/logger -p user.${level} "[info script] ${m}"
@@ -35,8 +35,8 @@ proc myexec {args} {
 }
 
 
-#fping exit 1 for non-alive hosts -- we are scanning subnets so special error handling needed
-#Exit status is 0 if all the hosts are reachable, 1 if some hosts were unreachable, 2 if any IP addresses were not found, 3 for invalid command line arguments, and 4 for a system call failure.
+# fping exit 1 for non-alive hosts -- we are scanning subnets so special error handling needed
+# Exit status is 0 if all the hosts are reachable, 1 if some hosts were unreachable, 2 if any IP addresses were not found, 3 for invalid command line arguments, and 4 for a system call failure.
 proc myfping {args} {
     set status 0
     if {[catch {exec /usr/sbin/fping -a -g {*}$args} results options]} {
@@ -50,7 +50,7 @@ proc myfping {args} {
         }
     }
 
-    #exit if error is not 1
+    # exit if error is not 1
     if { $status && $status != 1 } {
         log "error" "$args $status $results"
         puts "## Error $status ##"
@@ -58,7 +58,7 @@ proc myfping {args} {
         exit 1
     }
 
-    #strip non-ipv4 address from the returned data. empty if none
+    # strip non-ipv4 address from the returned data. empty if none
     set valid {}
     foreach ip $results {
         set ipv4 1
@@ -91,14 +91,14 @@ proc mytsagent {host} {
         }
     }
 
-    #timeout triggers error 1
+    # timeout triggers error 1
     if { $status == 1 } {
         return 0
     }
 
-    #return false if error non-zero
-    #seen a few occurrences with 104 ECONNREST returned
-    #want the overall discovery process to continue but ignore this host
+    # return false if error non-zero
+    # seen a few occurrences with 104 ECONNREST returned
+    # want the overall discovery process to continue but ignore this host
     if { $status } {
         log "error" "$host $status"
         puts "## Error $host $status ##"
@@ -106,11 +106,11 @@ proc mytsagent {host} {
         return 0
     }
 
-    #check result for certificate
-    #OpenSSL 1.0.1e-fips 11 Feb 2013
-    #Subject: C=US, ST=California, L=Santa Clara, O=Palo Alto Networks, OU=Engineering, CN=Terminal Server Agent
-    #OpenSSL 1.1.1d  10 Sep 2019
-    #Subject: C = US, ST = California, L = Santa Clara, O = Palo Alto Networks, OU = Engineering, CN = Terminal Server Agent
+    # check result for certificate
+    ## OpenSSL 1.0.1e-fips 11 Feb 2013
+    ## Subject: C=US, ST=California, L=Santa Clara, O=Palo Alto Networks, OU=Engineering, CN=Terminal Server Agent
+    ## OpenSSL 1.1.1d  10 Sep 2019
+    ## Subject: C = US, ST = California, L = Santa Clara, O = Palo Alto Networks, OU = Engineering, CN = Terminal Server Agent
     if { [string first "CN = Terminal Server Agent" $results] > 0 } {
         return 1
     }
@@ -133,12 +133,7 @@ proc mydig {ip} {
         }
     }
 
-    #timeout triggers error 1
-    #if { $status == 1 } {
-    #    return 0
-    #}
-
-    #exit if error non-zero
+    # exit if error non-zero
     if { $status } {
         log "error" "$args $status $results"
         puts "## Error $status ##"

@@ -38,13 +38,13 @@ if ($info) { puts "## probing for TS Agents and comparing against Panorama confi
 if ($trace) { puts "trace: $alive\n" }
 foreach ip $alive {
 
-    #test if tls socket is listening
+    # test if tls socket is listening
     if {[mytsagent $ip]} {
 
-        #lookup hostname
+        # lookup hostname
         set dig [mydig $ip]
         
-        #2018-04-10 nic@boet.cc
+        # 2018-04-10 nic@boet.cc
         ## initially we had used the ip address if no valid hostname was returned.
         ## This eventually resulted in duplicate TS Agents in the configs, during the next scan?,
         ## the hostname would become registered and that first entry was never purged
@@ -53,14 +53,14 @@ foreach ip $alive {
         ## So we skip those servers now
         if {[llength $dig] != 0} {
 
-            #we need an object name (ie host) and fqdn for the firewall configs
+            # we need an object name (ie host) and fqdn for the firewall configs
             set host [lindex [split $dig "."] 0]
             set domain [lindex [split $dig "."] 1]
             set tld [lindex [split $dig "."] 2]
             set fqdn "$host.$domain.$tld"
-            ##if ($trace) { puts "trace: $ip $host $fqdn\n" }
+            ## if ($trace) { puts "trace: $ip $host $fqdn\n" }
 
-            #check if we already have this configured
+            # check if we already have this configured
             if {[string match "*$config(template)*ts-agent $host*" $panorama] } {
                 if ($debug) { puts "skip $host agent already configured" }
             } else {
@@ -82,7 +82,6 @@ if {[string length $add] > 0} {
     if ($debug) { puts "debug add:$add"}
     set a [myexec $path/exp/tsagent-modify.exp add $config(panorama) $add]
 }
-
 
 
 set time [clock format [clock seconds] -format "%Y-%m-%d %H:%M"]
