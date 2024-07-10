@@ -111,7 +111,7 @@ proc mytsagent {host} {
     #Subject: C=US, ST=California, L=Santa Clara, O=Palo Alto Networks, OU=Engineering, CN=Terminal Server Agent
     #OpenSSL 1.1.1d  10 Sep 2019
     #Subject: C = US, ST = California, L = Santa Clara, O = Palo Alto Networks, OU = Engineering, CN = Terminal Server Agent
-    if {[string first "CN = Terminal Server Agent" $results] } {
+    if { [string first "CN = Terminal Server Agent" $results] > 0 } {
         return 1
     }
 
