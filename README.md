@@ -2,6 +2,8 @@
 
 Automation routines for provisioning [Palo Alto Networks Terminal Services Agents](https://docs.paloaltonetworks.com/compatibility-matrix/terminal-services-ts-agent.html) into Panorama from dynamically deployed [Citrix XenApp](https://www.citrix.com/) "golden" images.
 
+![traffic flows](https://raw.githubusercontent.com/nabbi/pan-ts-agent-discovery/master/flows.png)
+
 I run the discovery hourly and purge daily (after the overnight maintenance server reboots)
 
 ##  discover.tcl
