@@ -47,7 +47,7 @@ foreach n [split $notconn "\n"] {
 
 # perform the delete if needed
 if {[string length $delete] > 0} {
-    if ($info) { puts "## Deleting stale agents from Panorama\n"}
+    if ($info) { puts "## Deleting [llength $delete] stale agents from Panorama\n"}
     if ($debug) { puts "debug delete::$delete"}
     set d [myexec $path/exp/tsagent-modify.exp delete $config(panorama) $delete]
 }
