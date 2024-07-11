@@ -8,7 +8,7 @@ Automation routines for provisioning [Palo Alto Networks Terminal Services Agent
 ##  discover.tcl
 
 Performs network probing to "discover" which servers have the PAN Terminal Services Agent running
-- icmp ping subnets for alive servers
+- icmp ping sweep subnets for alive servers
 - openssl client socket connects to confirm presence of TSAgent certificate
 - reverse ddns lookup ip address for constructing object and hostname
 - Panorama running configurations are checked if the discovered agents are new, or skipped if already defined
@@ -20,8 +20,8 @@ Changes are committed and pushed to defined template stacks
 
 Removes stale not-connected PAN TS Agents from Panorama
 - Retrieve idle agents from an active firewall member
-- confirms again with an openssl tls connect that
-- removes config from panorama
+- confirms again with an openssl tls connect that agent is unreachable
+- removes config from panorama template
 
 Changes are committed and pushed to defined template stacks
 

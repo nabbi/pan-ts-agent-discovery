@@ -6,7 +6,7 @@ exec tclsh "$0" "$@"
 # shothand our logger
 proc log {level msg} {
     set m [regsub -all "\n" ${msg} " :: "]
-    exec /usr/bin/logger -p user.${level} "[info script] ${m}"
+    exec logger -p user.${level} "[info script] ${m}"
 }
 
 
@@ -39,7 +39,7 @@ proc myexec {args} {
 # Exit status is 0 if all the hosts are reachable, 1 if some hosts were unreachable, 2 if any IP addresses were not found, 3 for invalid command line arguments, and 4 for a system call failure.
 proc myfping {args} {
     set status 0
-    if {[catch {exec /usr/sbin/fping -a -g {*}$args} results options]} {
+    if {[catch {exec fping -a -g {*}$args} results options]} {
         set details [dict get $options -errorcode]
         if {[lindex $details 0] eq "CHILDSTATUS"} {
             set status [lindex $details 2]
@@ -91,9 +91,9 @@ proc mytsagent {host} {
         }
     }
 
-    # timeout triggers error 1
-    if { $status == 1 } {
-        return 0
+    # check result for certificate
+    if { [string first "Terminal Server Agent" $results] > 0 } {
+        return 1
     }
 
     # return false if error non-zero
@@ -104,15 +104,6 @@ proc mytsagent {host} {
         puts "## Error $host $status ##"
         puts $results
         return 0
-    }
-
-    # check result for certificate
-    ## OpenSSL 1.0.1e-fips 11 Feb 2013
-    ## Subject: C=US, ST=California, L=Santa Clara, O=Palo Alto Networks, OU=Engineering, CN=Terminal Server Agent
-    ## OpenSSL 1.1.1d  10 Sep 2019
-    ## Subject: C = US, ST = California, L = Santa Clara, O = Palo Alto Networks, OU = Engineering, CN = Terminal Server Agent
-    if { [string first "CN = Terminal Server Agent" $results] > 0 } {
-        return 1
     }
 
     return 0

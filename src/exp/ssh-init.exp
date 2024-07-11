@@ -2,7 +2,11 @@
 # nic@boet.cc
 
 # the base cli prompt to expect
-set prompt "$config(username)@$hostname*active?"
+if { $config(strict) } {
+    set prompt "$config(username)@$hostname*active?"
+} else {
+    set prompt "$config(username)@*"
+}
 
 #exec ssh-keygen -R $hostname
 spawn ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $config(username)@$hostname

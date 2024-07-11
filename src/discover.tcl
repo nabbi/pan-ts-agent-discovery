@@ -40,37 +40,41 @@ foreach ip $alive {
 
     # test if tls socket is listening
     if {[mytsagent $ip]} {
-
-        # lookup hostname
-        set dig [mydig $ip]
         
-        # 2018-04-10 nic@boet.cc
-        ## initially we had used the ip address if no valid hostname was returned.
-        ## This eventually resulted in duplicate TS Agents in the configs, during the next scan?,
-        ## the hostname would become registered and that first entry was never purged
-        ##
-        ## This appeared to be a result of the server in maintenance mode, not fully deployed
-        ## So we skip those servers now
-        if {[llength $dig] != 0} {
+        if { $config(dns) } {
+
+            # lookup hostname
+            set dig [mydig $ip]
+
+            # 2018-04-10 nic@boet.cc
+            ## initially we had used the ip address if no valid hostname was returned.
+            ## This eventually resulted in duplicate TS Agents in the configs, during the next scan?,
+            ## the hostname would become registered and that first entry was never purged
+            ##
+            ## This appeared to be a result of the server in maintenance mode, not fully deployed
+            ## So we skip those servers now
+            if {[llength $dig] == 0} { continue }
 
             # we need an object name (ie host) and fqdn for the firewall configs
-            set host [lindex [split $dig "."] 0]
+            set agent_name [lindex [split $dig "."] 0]
             set domain [lindex [split $dig "."] 1]
             set tld [lindex [split $dig "."] 2]
-            set fqdn "$host.$domain.$tld"
-            ## if ($trace) { puts "trace: $ip $host $fqdn\n" }
+            set agent_host "$host.$domain.$tld"
 
-            # check if we already have this configured
-            if {[string match "*$config(template)*ts-agent $host*" $panorama] } {
-                if ($debug) { puts "skip $host agent already configured" }
-            } else {
-                if ($info) { puts "new $host agent found" }
-                log "info" "new ts-agent $host"
-                lappend add "$host,$fqdn"
-            }
-
-
+        } else {
+            set agent_name $ip
+            set agent_host $ip
         }
+
+        # check if we already have this configured
+        if {[string match "*$config(template)*ts-agent $agent_name*" $panorama] } {
+            if ($debug) { puts "skip $agent_name agent already configured" }
+        } else {
+            if ($info) { puts "new $agent_name agent found" }
+            log "info" "new ts-agent $agent_name"
+            lappend add "$agent_name,$agent_host"
+        }
+
     } else {
         if ($debug) { puts "none $ip" } 
     }
