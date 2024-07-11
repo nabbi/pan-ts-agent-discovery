@@ -99,3 +99,13 @@ non-privileged account
 30 5 * * *     ~/pan-ts-agent-discovery/src/purge.tcl >> /var/log/paloalto/pan-tsagent-purge.log 2>&1
 ```
 
+## ssh config
+
+newer OpenSSH defaults are sticter than Panorama
+
+~/.ssh/config
+```
+host *
+    HostKeyAlgorithms=+ssh-rsa
+```
+
