@@ -96,6 +96,11 @@ proc mytsagent {host} {
         return 1
     }
 
+    # silently ignore exit 1 errors
+    if { $status == 1 } {
+        return 0
+    }
+
     # return false if error non-zero
     # seen a few occurrences with 104 ECONNREST returned
     # want the overall discovery process to continue but ignore this host
