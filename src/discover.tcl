@@ -31,6 +31,7 @@ foreach n $config(networks) {
 
 ## Add
 set add {}
+set found {}
 ## retrieve panorama existing config, we do this once and cache it
 set panorama [myexec $path/exp/tsagent-configured.exp $config(panorama)]
 
@@ -66,6 +67,8 @@ foreach ip $alive {
             set agent_host $ip
         }
 
+        lappend found "$agent_name"
+
         # check if we already have this configured
         if {[string match "*$config(template)*ts-agent $agent_name*" $panorama] } {
             if ($debug) { puts "skip $agent_name agent already configured" }
@@ -82,9 +85,11 @@ foreach ip $alive {
 
 # perform the add if needed
 if {[string length $add] > 0} {
-    if ($info) { puts "## Adding [llength $add] new agents into $config(panorama)\n"}
+    if ($info) { puts "## Discovered [llength $found], Adding [llength $add] new agents into $config(panorama)\n"}
     if ($debug) { puts "debug add:$add"}
     set a [myexec $path/exp/tsagent-modify.exp add $config(panorama) $add]
+} else {
+    if ($info) { puts "## All [llength $found] agents discovered are already defined in $config(panorama)\n"}
 }
 
 set time [clock format [clock seconds] -format "%Y-%m-%d %H:%M"]

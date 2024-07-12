@@ -21,10 +21,11 @@ if ($info) { puts "## Start PAN TS Agent Purge $time\n" }
 
 ## Delete
 set delete {}
+set found {}
 # fetch not-connected terminal services agents from firewall
 set notconn [myexec $path/exp/tsagent-not-connected.exp $config(firewall)]
 
-if ($info) { puts "## Checking config for stale TS Agents\n" }
+if ($info) { puts "## Checking firewall for stale TS Agents\n" }
 foreach n [split $notconn "\n"] {
 
     # filter input
@@ -32,7 +33,9 @@ foreach n [split $notconn "\n"] {
         set object [lindex $n 0]
         set hostname [lindex $n 1]
 
-        # double check that tls socket is not listening
+        lappend found "$object"
+
+        # double check if the tls socket is not reachable
         # this protects against a momentary connection glitch
         if {! [mytsagent $hostname]} {
             if ($info) { puts "delete $object idle agent" }
@@ -47,7 +50,7 @@ foreach n [split $notconn "\n"] {
 
 # perform the delete if needed
 if {[string length $delete] > 0} {
-    if ($info) { puts "## Deleting [llength $delete] stale agents from Panorama\n"}
+    if ($info) { puts "## Not Connected [llength $found], Deleting [llength $delete] stale agents from Panorama configs\n"}
     if ($debug) { puts "debug delete::$delete"}
     set d [myexec $path/exp/tsagent-modify.exp delete $config(panorama) $delete]
 }
