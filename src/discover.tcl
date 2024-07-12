@@ -26,6 +26,8 @@ foreach n $config(networks) {
     if ($debug) { puts "debug: icmp ping: $n\n" }
     #returned value is a list. list-concatenate together
     set alive [list {*}$alive {*}[myfping $n]]
+    # if networks has overlapping ranges we might see duplicates
+    set alive [lsort -unique $alive]
     ##if ($trace) { puts "trace: $alive\n" }
 }
 
@@ -67,7 +69,7 @@ foreach ip $alive {
             set agent_host $ip
         }
 
-        lappend found "$agent_name"
+        lappend found $agent_name
 
         # check if we already have this configured
         if {[string match "*$config(template)*ts-agent $agent_name*" $panorama] } {

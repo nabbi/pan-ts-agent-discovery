@@ -33,7 +33,7 @@ foreach n [split $notconn "\n"] {
         set object [lindex $n 0]
         set hostname [lindex $n 1]
 
-        lappend found "$object"
+        lappend found $object
 
         # double check if the tls socket is not reachable
         # this protects against a momentary connection glitch
