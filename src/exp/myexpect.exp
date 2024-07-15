@@ -7,7 +7,7 @@ proc myexpect {p} {
     expect {
         # protect our coding below from being at the incorrect cmd prompt level
         timeout {
-            send_user "\n## Timeout occured. Did not get the expected prompt!\n"
+            send_user "\n## Timeout occurred. Did not get the expected prompt!\n"
             exit 1
         }
         # protect against incorrect commands or syntax issues

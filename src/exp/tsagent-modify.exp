@@ -5,7 +5,7 @@ log_user 0
 set timeout 45
 
 proc help {} {
-    puts "PAN: configure TS Agents in Panorma"
+    puts "PAN: configure TS Agents in Panorama"
     puts "Usage:   $::argv0 add <panorama> \"object,hostname\""
     puts "Usage:   $::argv0 delete <panorama> \"object\""
     exit 64
@@ -59,7 +59,7 @@ if {[string match $action "add"]} {
 }
 
 
-# commit comment - escaping spaces was not running clean. do not use them
+# commit comment - escaping spaces was not running clean, do not use them here
 set description "BackgroundInfrastructureTask-TerminalServicesAgent"
 
 # commit
