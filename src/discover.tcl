@@ -75,7 +75,7 @@ foreach ip $alive {
         if { $config(dns) && [string match "*$config(template)*ts-agent $agent_name*" $panorama] } {
             if ($debug) { puts "skip $agent_name agent dns already configured" }
 
-        } elseif { ! $config(dns) && [string match "*$config(template)*ts-agent $agent_name" $panorama] } {
+        } elseif { ! $config(dns) && [string match "*$config(template)*ts-agent $agent_name host*" $panorama] } {
             if ($debug) { puts "skip $agent_name agent ip already configured" }
 
         } else {
