@@ -71,6 +71,7 @@ send "exit\r"
 myexpect "$prompt>"
 
 # commit-all to each template-stacks
+after 15000
 foreach stack $config(templatestacks) {
     send "commit-all template-stack description $description name $stack\r"
     myexpect "$prompt>"
