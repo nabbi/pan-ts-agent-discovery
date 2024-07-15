@@ -40,7 +40,6 @@ send "configure\r"
 myexpect "$prompt#"
 
 log_user 1
-#send "show user ts-agent statistics | match not-conn\r"
 send "show | match \"ts-agent.*host\"\r"
 myexpect "$prompt#"
 log_user 0
