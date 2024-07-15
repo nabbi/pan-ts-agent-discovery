@@ -26,10 +26,10 @@ foreach n $config(networks) {
     if ($debug) { puts "debug: icmp ping: $n\n" }
     #returned value is a list. list-concatenate together
     set alive [list {*}$alive {*}[myfping $n]]
-    # if networks has overlapping ranges we might see duplicates
-    set alive [lsort -unique $alive]
     ##if ($trace) { puts "trace: $alive\n" }
 }
+# if networks has overlapping ranges we might see duplicates
+set alive [lsort -unique $alive]
 
 ## Add
 set add {}
