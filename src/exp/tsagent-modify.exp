@@ -29,7 +29,6 @@ set input [string tolower [lindex $argv 2]]
 # spawn ssh
 source $path/ssh-init.exp
 
-
 ###########
 
 # output config with set commands
@@ -57,7 +56,6 @@ if {[string match $action "add"]} {
     }
 
 }
-
 
 # commit comment - escaping spaces was not running clean, do not use them here
 set description "BackgroundInfrastructureTask-TerminalServicesAgent"

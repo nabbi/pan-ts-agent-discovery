@@ -23,7 +23,6 @@ expect {
     -nocase $prompt
 }
 
-
 # disable terminal paging
 send "set cli pager off\r"
 sleep 1
@@ -33,5 +32,4 @@ myexpect "$prompt>"
 send "set cli scripting-mode on\r"
 sleep 1
 myexpect "$prompt>"
-
 
