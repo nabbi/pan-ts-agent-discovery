@@ -6,6 +6,9 @@ exec tclsh "$0" "$@"
 # shothand our logger
 proc log {level msg} {
     set m [regsub -all "\n" ${msg} " :: "]
+    if { [string length $m] > 200 } {
+        set m "[string range $m 0 200] ..."
+    }
     exec logger -p user.${level} "[info script] ${m}"
 }
 
