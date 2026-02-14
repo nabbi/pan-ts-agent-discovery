@@ -6,7 +6,7 @@ set timeout 45
 
 proc help {} {
     puts "PAN: display configured Terminal Server Agents in set format"
-    puts "Usage:   $::argv0 <panorama>"
+    puts "Usage:   $::argv0 <pan-os>"
     exit 64
 } 
 

@@ -13,6 +13,7 @@ set config(strict) {1}
 set config(dns) {1}
 
 # Hostname of active Panorama instance
+# Set to "disable" to manage TS Agents directly on the firewall
 set config(panorama) {pan-hostname}
 
 # Hostname of active Firewall instance
@@ -27,11 +28,13 @@ set config(username) {admin}
 set config(password) {password123}
 
 # Panorama configuration template name for where ts-agents are defined
+# Panorama-only, set to {} when panorama is "disable"
 set config(template) {temp_shared}
 
 # Virtual System name for where ts-agents are define
 set config(vsys) {vsys1}
 
 # template-stacks for performing commit-all
+# Panorama-only, set to {} when panorama is "disable"
 set config(templatestacks) {stack_once stack_two}
 

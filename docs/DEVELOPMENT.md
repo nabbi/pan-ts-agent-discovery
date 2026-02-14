@@ -21,6 +21,7 @@ The test suite validates the core logic with mocked external commands (no networ
 
 **discover.tcl logic**
 - Panorama config pattern matching (DNS and IP modes)
+- Firewall-mode config pattern matching (DNS and IP modes, multi-agent)
 - Multi-agent and wrong-template rejection
 - FQDN parsing (hostname, domain, TLD extraction)
 - IP deduplication

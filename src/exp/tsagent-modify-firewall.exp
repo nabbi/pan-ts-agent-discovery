@@ -1,0 +1,81 @@
+#!/usr/bin/expect
+# nic@boet.cc
+
+log_user 0
+set timeout 45
+
+proc help {} {
+    puts "PAN: configure TS Agents directly on a firewall"
+    puts "Usage:   $::argv0 add <firewall> \"object,hostname\""
+    puts "Usage:   $::argv0 delete <firewall> \"object\""
+    exit 64
+}
+
+set path [file dirname [file normalize [info script]]]
+source $path/myexpect.exp
+source $path/../inc/config.tcl
+
+
+# define vars
+if { [llength $argv] != 3 } {
+    puts "Incorrect number of arguments"
+    [help]
+}
+
+set action [string tolower [lindex $argv 0]]
+set target [string tolower [lindex $argv 1]]
+set input [string tolower [lindex $argv 2]]
+
+# ssh-init.exp expects $hostname
+set hostname $target
+
+# spawn ssh
+source $path/ssh-init.exp
+
+###########
+
+# output config with set commands
+send "set cli config-output-format set\r"
+myexpect "$prompt>"
+
+# enter config mode
+send "configure\r"
+myexpect "$prompt#"
+
+
+# input is processed as tcl lists
+if {[string match $action "add"]} {
+    foreach i $input {
+        set object [lindex [split $i ","] 0]
+        set host [lindex [split $i ","] 1]
+        send "set vsys $config(vsys) ts-agent $object host $host port 5009 disabled no\r"
+        myexpect "$prompt#"
+    }
+
+} elseif { [string match $action "delete"] } {
+    foreach object $input {
+        send "delete vsys $config(vsys) ts-agent $object\r"
+        myexpect "$prompt#"
+    }
+
+}
+
+# commit comment - escaping spaces was not running clean, do not use them here
+set description "BackgroundInfrastructureTask-TerminalServicesAgent"
+
+# commit
+send "commit description $description partial admin $config(username)\n"
+myexpect "$prompt#"
+
+# exit config mode
+send "exit\r"
+myexpect "$prompt>"
+
+###########
+
+# close shell
+send "exit\r"
+expect eof
+
+puts "Success"
+exit 0

@@ -50,9 +50,13 @@ foreach n [split $notconn "\n"] {
 
 # perform the delete if needed
 if {[string length $delete] > 0} {
-    if ($info) { puts "## Not Connected [llength $found], Deleting [llength $delete] stale agents from Panorama configs\n"}
+    if ($info) { puts "## Not Connected [llength $found], Deleting [llength $delete] stale agents from configs\n"}
     if ($debug) { puts "debug delete::$delete"}
-    set d [myexec $path/exp/tsagent-modify.exp delete $config(panorama) $delete]
+    if { $config(panorama) eq "disable" } {
+        set d [myexec $path/exp/tsagent-modify-firewall.exp delete $config(firewall) $delete]
+    } else {
+        set d [myexec $path/exp/tsagent-modify-panorama.exp delete $config(panorama) $delete]
+    }
 } elseif { [llength $found] > 0} {
     if ($info) { puts "## Found [llength $found] not-connected agents but they are responding\n"}
 }

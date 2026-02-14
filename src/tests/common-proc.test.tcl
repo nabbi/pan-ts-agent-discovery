@@ -339,6 +339,43 @@ test discover-wrong-template-no-match {discover does not match agent in differen
     string match "*$config(template)*ts-agent $agent_name*" $panorama
 } -result 0
 
+test discover-firewall-dns-match {firewall mode: skip agent already configured (DNS)} -body {
+    set config(template) ""
+    set agent_name "server01"
+    set existing "set vsys vsys1 ts-agent server01 host server01.domain.com port 5009"
+    string match "*$config(template)*ts-agent $agent_name*" $existing
+} -result 1
+
+test discover-firewall-dns-no-match {firewall mode: detect new agent (DNS)} -body {
+    set config(template) ""
+    set agent_name "newserver"
+    set existing "set vsys vsys1 ts-agent server01 host server01.domain.com port 5009"
+    string match "*$config(template)*ts-agent $agent_name*" $existing
+} -result 0
+
+test discover-firewall-ip-match {firewall mode: skip agent already configured (IP)} -body {
+    set config(template) ""
+    set agent_name "10.0.0.1"
+    set existing "set vsys vsys1 ts-agent 10.0.0.1 host 10.0.0.1 port 5009"
+    string match "*$config(template)*ts-agent $agent_name host*" $existing
+} -result 1
+
+test discover-firewall-ip-no-match {firewall mode: detect new agent (IP)} -body {
+    set config(template) ""
+    set agent_name "10.0.0.99"
+    set existing "set vsys vsys1 ts-agent 10.0.0.1 host 10.0.0.1 port 5009"
+    string match "*$config(template)*ts-agent $agent_name host*" $existing
+} -result 0
+
+test discover-firewall-multi-agent {firewall mode: match among multiple agents} -body {
+    set config(template) ""
+    set agent_name "server02"
+    set existing "set vsys vsys1 ts-agent server01 host server01.dom.com port 5009
+set vsys vsys1 ts-agent server02 host server02.dom.com port 5009
+set vsys vsys1 ts-agent server03 host server03.dom.com port 5009"
+    string match "*$config(template)*ts-agent $agent_name*" $existing
+} -result 1
+
 
 # ========================================================================
 # discover.tcl DNS parsing logic

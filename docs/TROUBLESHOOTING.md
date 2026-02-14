@@ -36,10 +36,10 @@ A normal discovery run looks like:
 
 ## ICMP discovery
 
-## probing 42 hosts for TS Agents and comparing against Panorama config
+## probing 42 hosts for TS Agents and comparing against existing config
 
 new server01 agent found
-## Discovered 42, Adding 1 new agents into pan-hostname
+## Discovered 42, Adding 1 new agents
 
 ## End PAN TS Agent Discovery 2024-01-15 09:17
 ```
@@ -52,7 +52,7 @@ A normal purge run looks like:
 ## Checking firewall for stale TS Agents
 
 delete server99 idle agent
-## Not Connected 3, Deleting 1 stale agents from Panorama configs
+## Not Connected 3, Deleting 1 stale agents from configs
 
 ## End PAN TS Agent Purge 2024-01-15 05:31
 ```

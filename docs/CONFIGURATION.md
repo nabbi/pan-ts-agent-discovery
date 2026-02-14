@@ -46,6 +46,8 @@ set config(panorama) {pan-hostname}
 
 Hostname (or IP) of the active Panorama instance. Used by `discover.tcl` to query existing TS Agent configuration and to add or delete agents.
 
+Set to `"disable"` to manage TS Agents directly on the firewall instead of through Panorama. When disabled, `config(template)` and `config(templatestacks)` should be set to `{}`.
+
 ### firewall
 
 ```tcl
@@ -69,7 +71,7 @@ PAN-OS admin credentials used for SSH access to both Panorama and the firewall. 
 set config(template) {temp_shared}
 ```
 
-The Panorama configuration template where TS Agents are defined. Agents are added and removed under this template's vsys.
+The Panorama configuration template where TS Agents are defined. Agents are added and removed under this template's vsys. Panorama-only — set to `{}` when `config(panorama)` is `"disable"`.
 
 ### vsys
 
@@ -85,7 +87,7 @@ The virtual system within the template where TS Agents are configured.
 set config(templatestacks) {stack_once stack_two}
 ```
 
-Space-separated list of Panorama template-stacks. After a commit, changes are pushed (`commit-all`) to each stack listed here.
+Space-separated list of Panorama template-stacks. After a commit, changes are pushed (`commit-all`) to each stack listed here. Panorama-only — set to `{}` when `config(panorama)` is `"disable"`.
 
 ## Notes
 
