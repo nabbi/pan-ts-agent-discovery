@@ -27,7 +27,11 @@ Changes are committed and pushed to defined template stacks
 
 ## configuration
 
-Create your local [inc/config.tcl](src/inc/config.example.tcl) file.
+See [CONFIGURATION](docs/CONFIGURATION.md) for parameter details. Create your local config from the example:
+
+```shell
+cp src/inc/config.example.tcl src/inc/config.tcl
+```
 
 ## crontab
 
@@ -35,6 +39,14 @@ I run the [crontab](crontab) discovery hourly and purge daily (after the overnig
 
 Use the provided [logrotate](logrotate) to manage the logs files this generates.
 
+## development
+
+See [DEVELOPMENT](docs/DEVELOPMENT.md) for testing and contributing.
+
 ##  Install
 
-See [INSTALL](INSTALL.md) for more hints on setting up your environment, a [Dockerfile](Dockerfile) exists now too.
+See [INSTALL](docs/INSTALL.md) for more hints on setting up your environment, a [Dockerfile](Dockerfile) exists now too.
+
+## troubleshooting
+
+See [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) for reviewing logs, PAN-OS CLI checks, and common errors.

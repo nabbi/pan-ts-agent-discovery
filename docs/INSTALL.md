@@ -13,6 +13,8 @@ cd pan-ts-agent-discovery
 Once config.tcl is defined, build your custom image with:
 
 ```shell
+cp src/inc/config.example.tcl src/inc/config.tcl
+# edit src/inc/config.tcl with your values
 docker build .
 ```
 
@@ -35,22 +37,26 @@ YMMV
 
 These commands should be in the system default paths
 
-* curl
 * dig
-* echo
 * expect
 * fping
 * logger
 * openssl
 * ssh
 * ssh-keygen
-* tcl
+* tclsh
 * timeout
 
 ### Ubuntu
 
 ```shell
-sudo apt install fping expect
+sudo apt install fping expect dnsutils
+```
+
+### Alpine
+
+```shell
+apk add fping tcl expect openssl bind-tools openssh
 ```
 
 ## clone repo
@@ -62,7 +68,11 @@ git clone https://github.com/nabbi/pan-ts-agent-discovery
 
 ## config
 
-Define inc/config.tcl from inc/config.example.tcl
+See [CONFIGURATION](CONFIGURATION.md) for parameter details.
+
+```shell
+cp src/inc/config.example.tcl src/inc/config.tcl
+```
 
 ## initialize log files
 
@@ -84,7 +94,7 @@ chmod -R g+w /var/log/paloalto
     daily
     missingok
     compress
-    sharedscripts
+    nocreate
 }
 ```
 
@@ -94,18 +104,17 @@ non-privileged account
 
 ```cron
 # PAN TS Agent Discover
-15 * * * *     ~/pan-ts-agent-discovery/src/discover.tcl >> /var/log/paloalto/pan-tsagent-discover.log 2>&1
+15 * * * *     /opt/pan-ts-agent-discovery/src/discover.tcl >> /var/log/paloalto/pan-tsagent-discover.log 2>&1
 # PAN TS Agent Purge - do not run at same time as discovery add!
-30 5 * * *     ~/pan-ts-agent-discovery/src/purge.tcl >> /var/log/paloalto/pan-tsagent-purge.log 2>&1
+30 5 * * *     /opt/pan-ts-agent-discovery/src/purge.tcl >> /var/log/paloalto/pan-tsagent-purge.log 2>&1
 ```
 
 ## ssh config
 
-newer OpenSSH defaults are sticter than Panorama
+newer OpenSSH defaults are stricter than Panorama
 
 ~/.ssh/config
 ```
 host *
     HostKeyAlgorithms=+ssh-rsa
 ```
-
