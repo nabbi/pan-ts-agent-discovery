@@ -66,7 +66,7 @@ foreach ip $alive {
             set agent_name [lindex [split $dig "."] 0]
             set domain [lindex [split $dig "."] 1]
             set tld [lindex [split $dig "."] 2]
-            set agent_host "$host.$domain.$tld"
+            set agent_host "$agent_name.$domain.$tld"
 
         } else {
             set agent_name $ip

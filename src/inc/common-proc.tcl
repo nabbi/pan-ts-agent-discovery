@@ -95,7 +95,7 @@ proc mytsagent {host} {
     }
 
     # check result for certificate
-    if { [string first "Terminal Server Agent" $results] > 0 } {
+    if { [string first "Terminal Server Agent" $results] >= 0 } {
         return 1
     }
 
@@ -134,7 +134,7 @@ proc mydig {ip} {
 
     # exit if error non-zero
     if { $status } {
-        log "error" "$args $status $results"
+        log "error" "mydig $ip $status $results"
         puts "## Error $status ##"
         puts $results
         exit 1
