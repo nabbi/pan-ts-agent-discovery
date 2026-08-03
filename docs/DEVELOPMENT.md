@@ -37,13 +37,17 @@ tclsh src/tests/fuzz-injection.test.tcl [iterations] [seed]
 
 `mydig`'s output is a reverse DNS PTR record, which is attacker-influenceable if the attacker controls DNS for a scanned subnet. That string flows with no sanitization into live PAN-OS CLI `send` commands and into `string match` glob patterns. `fuzz-injection.test.tcl` replicates that data pipeline (FQDN split -> CSV add-list encode/decode -> CLI command construction -> the "already configured" `string match` check) and generates adversarial hostnames against it -- a fixed corpus of named edge cases plus randomized mutations (seeded, so a failing run is reproducible with the same seed).
 
-It checks three invariants and currently finds violations of all three, i.e. these are real, unfixed issues in the current code, not hypothetical:
+It checks three invariants:
 
-- **no-crlf** -- a PTR value containing `\r`/`\n` is not stripped, so it can inject a second command into the live SSH session (e.g. a PTR record of `server01<CRLF>delete template ... ts-agent legituser01` would delete an unrelated agent).
-- **csv-roundtrip** -- a PTR value containing a comma corrupts the `"$agent_name,$agent_host"` encoding used to pass discovered hosts to `tsagent-modify-*.exp`, desyncing the object name from its host.
-- **glob-injection** -- discover.tcl's "already configured" check (`string match "*...ts-agent $agent_name*" $existing`) treats `agent_name` as a glob pattern, not a literal string. A PTR value of `*` (or containing `*`/`?`/`[`) makes every existing-agent check succeed regardless of the real name, so the tool silently believes any host is already configured and never adds it.
+- **no-crlf** -- a PTR value containing `\r`/`\n` could inject a second command into the live SSH session (e.g. a PTR record of `server01<CRLF>delete template ... ts-agent legituser01` would delete an unrelated agent).
+- **csv-roundtrip** -- a PTR value containing a comma would corrupt the `"$agent_name,$agent_host"` encoding used to pass discovered hosts to `tsagent-modify-*.exp`, desyncing the object name from its host.
+- **glob-injection** -- discover.tcl's "already configured" check (`string match "*...ts-agent $agent_name*" $existing`) treats `agent_name` as a glob pattern, not a literal string. A PTR value of `*` (or containing `*`/`?`/`[`) would make every existing-agent check succeed regardless of the real name, so the tool would silently believe any host is already configured and never add it.
 
-This harness intentionally exits 1 while these hold -- it is not wired into the pass/fail suite run by `common-proc.test.tcl`. Treat a clean run as confirmation a fix actually closed the gap, not as a gate to keep permanently green without addressing the findings.
+This harness originally found live violations of all three (fixed in the same change that added the `pipeline_valid_ptr` gate below -- see `discover.tcl`'s PTR validation right after the `mydig` call). `discover.tcl` now rejects (`continue`, logged at `error` level) any PTR record outside a plain hostname charset (`^[A-Za-z0-9._-]+$`) before `agent_name`/`agent_host` are ever derived from it, which closes all three at the same point since none of the three payload shapes (CR/LF, comma, glob metacharacters) are valid hostname characters. The harness's `pipeline_valid_ptr` mirrors that same regex so it accurately reflects the fixed pipeline.
+
+A clean run (exit 0) is the expected state -- treat any future violation as a real regression, not noise.
+
+Note this only covers `discover.tcl`'s path (DNS mode). `purge.tcl`'s `$object` comes from the firewall's own `not-conn` stats output for agents that were already accepted through this same gate, so it inherits the fix; it was not independently re-validated here.
 
 **discover.tcl logic**
 - Panorama config pattern matching (DNS and IP modes)

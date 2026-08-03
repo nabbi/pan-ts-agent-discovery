@@ -73,6 +73,12 @@ proc randstr {} {
 
 # ---- pipeline replication (mirrors discover.tcl / tsagent-modify-*.exp) ----
 
+# discover.tcl: PTR record validation gate -- reject anything outside a plain
+# hostname charset before it ever reaches the CSV/CLI/glob pipeline below
+proc pipeline_valid_ptr {dig} {
+    regexp {^[A-Za-z0-9._-]+$} $dig
+}
+
 # discover.tcl: FQDN split -> agent_name/agent_host
 proc pipeline_split {dig} {
     set agent_name [lindex [split $dig "."] 0]
@@ -124,6 +130,10 @@ proc pipeline_already_configured_literal {agent_name} {
 set violations {}
 
 proc check {input} {
+    # discover.tcl skips (continue) anything that fails the PTR validation gate
+    # before it ever reaches the vulnerable pipeline -- mirror that here
+    if { ![pipeline_valid_ptr $input] } { return }
+
     if {[catch {
         set parts [pipeline_split $input]
         set agent_name [lindex $parts 0]

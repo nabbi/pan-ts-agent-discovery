@@ -62,6 +62,18 @@ foreach ip $alive {
             ## So we skip those servers now
             if {[llength $dig] == 0} { continue }
 
+            # PTR records are attacker-influenceable (whoever controls reverse DNS for the
+            # scanned subnet). agent_name/agent_host derived from $dig get sent verbatim into
+            # live PAN-OS CLI commands and into a string match glob pattern, so anything
+            # outside a normal hostname charset could inject a second CLI command (via \r\n),
+            # desync the object/host CSV encoding (via ,), or spoof the "already configured"
+            # check (via */?/[]). Reject anything that isn't a plain hostname before using it.
+            if { ![regexp {^[A-Za-z0-9._-]+$} $dig] } {
+                log "error" "suspicious PTR record for $ip, skipping: $dig"
+                if ($debug) { puts "skip $ip suspicious PTR record: $dig" }
+                continue
+            }
+
             # we need an object name (ie host) and fqdn for the firewall configs
             set agent_name [lindex [split $dig "."] 0]
             set domain [lindex [split $dig "."] 1]
