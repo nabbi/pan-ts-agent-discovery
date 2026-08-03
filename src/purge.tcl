@@ -30,8 +30,18 @@ foreach n [split $notconn "\n"] {
 
     # filter input
     if {[string match "*not-conn:*" $n]} {
-        set object [lindex $n 0]
-        set hostname [lindex $n 1]
+
+        # $n is parsed as a Tcl list below -- an unbalanced brace or quote
+        # anywhere in the device's output throws a Tcl error. Don't let one
+        # malformed/corrupted line abort the whole purge run.
+        if {[catch {
+            set object [lindex $n 0]
+            set hostname [lindex $n 1]
+        } err]} {
+            log "error" "purge: could not parse not-conn line, skipping: $n ($err)"
+            if ($debug) { puts "skip unparsable line: $n" }
+            continue
+        }
 
         lappend found $object
 

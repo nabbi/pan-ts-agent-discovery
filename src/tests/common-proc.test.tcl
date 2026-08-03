@@ -569,6 +569,74 @@ admin@fw>"
 
 
 # ========================================================================
+# purge.tcl combined decision logic (not-conn match AND mytsagent recheck)
+# ========================================================================
+
+# mirrors purge.tcl's actual loop, including its malformed-line catch
+proc purge_decide {notconn} {
+    set delete {}
+    set found {}
+    foreach n [split $notconn "\n"] {
+        if {[string match "*not-conn:*" $n]} {
+            if {[catch {
+                set object   [lindex $n 0]
+                set hostname [lindex $n 1]
+            }]} {
+                continue
+            }
+            lappend found $object
+            if {! [mytsagent $hostname]} {
+                lappend delete $object
+            }
+        }
+    }
+    return [list $found $delete]
+}
+
+test purge-decide-deletes-unreachable {agent stays not-conn and fails the recheck -> deleted} -setup {
+    mock_exec_fail "connection refused" 1
+} -body {
+    purge_decide "server01   10.0.0.1   5009   vsys1   not-conn:   0/0/0"
+} -cleanup {
+    mock_exec_clear
+} -result {server01 server01}
+
+test purge-decide-keeps-reachable {agent shows not-conn but responds to the recheck -> kept, not deleted} -setup {
+    mock_exec_ok "Subject: CN = Terminal Server Agent"
+} -body {
+    purge_decide "server01   10.0.0.1   5009   vsys1   not-conn:   0/0/0"
+} -cleanup {
+    mock_exec_clear
+} -result {server01 {}}
+
+test purge-decide-ignores-connected-lines {connected lines are never evaluated or deleted} -setup {
+    mock_exec_fail "connection refused" 1
+} -body {
+    purge_decide "server01   10.0.0.1   5009   vsys1   connected:   192.168.1.1"
+} -cleanup {
+    mock_exec_clear
+} -result {{} {}}
+
+test purge-decide-multiline-all-unreachable {multiple not-conn agents, all unreachable -> all deleted} -setup {
+    mock_exec_fail "connection refused" 1
+} -body {
+    purge_decide "server01   10.0.0.1   5009   vsys1   not-conn:   0/0/0
+server02   10.0.0.2   5009   vsys1   not-conn:   0/0/0"
+} -cleanup {
+    mock_exec_clear
+} -result {{server01 server02} {server01 server02}}
+
+test purge-decide-skips-malformed-line {malformed not-conn line is skipped, not counted as found or deleted} -setup {
+    mock_exec_fail "connection refused" 1
+} -body {
+    purge_decide "server01 \{ unbalanced not-conn: brace
+server02   10.0.0.2   5009   vsys1   not-conn:   0/0/0"
+} -cleanup {
+    mock_exec_clear
+} -result {server02 server02}
+
+
+# ========================================================================
 # discover.tcl dedup logic (lsort -unique)
 # ========================================================================
 
