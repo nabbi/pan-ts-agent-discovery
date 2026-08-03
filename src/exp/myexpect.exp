@@ -31,6 +31,14 @@ proc myexpect {p} {
             exit 1
         }
 
+        # commit rejected because an object count (eg. TS Agents) exceeds what the platform supports
+        # see docs/TROUBLESHOOTING.md "Too many agents configured (platform capacity exceeded)"
+        -nocase "exceeds platform capacity" {
+            send_user "\n## Commit rejected: exceeds platform capacity. See docs/TROUBLESHOOTING.md.\n"
+            send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
+            exit 1
+        }
+
         # unknown errors?
         -nocase "error" {
             send_user "\n## unknown error -- please report this condition\n"
