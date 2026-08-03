@@ -156,6 +156,47 @@ dig -x 10.10.10.5 +short
 
 The returned PTR must also have a matching forward A record.
 
+### Too many agents configured (platform capacity exceeded)
+
+PAN-OS enforces a maximum number of configured TS Agents per firewall platform/model. The limit is documented per hardware/VM-Series model and PAN-OS version in the official [Terminal Server (TS) Agent compatibility matrix](https://docs.paloaltonetworks.com/compatibility-matrix/reference/terminal-services-ts-agent) — it ranges from 400 on smaller platforms up to 2,500 on the high end (e.g. PA-7000 Series with SMC-B, VM-700).
+
+When a `commit-all template-stack` push would exceed a managed firewall's TS Agent capacity, PAN-OS rejects it with a platform-capacity validation error. This is the same error class Panorama uses for other object types, e.g.:
+
+```
+Error: Number of services (xxxx) exceeds platform capacity (yyyy) (Module: device)
+Commit failed
+```
+
+This ceiling can be reached two ways:
+
+1. **Genuine growth** — more Citrix/XenApp hosts are online and discovered than the target firewall model supports.
+2. **`purge.tcl` is not removing stale agents** — if the purge cron job has stopped running or is failing, idle agents accumulate indefinitely until the total crosses the platform limit.
+
+To check which of these applies:
+
+```
+> configure
+# show | match "ts-agent.*host"
+```
+
+Count the results and compare against the platform's documented maximum for the firewall model and PAN-OS version (link above). Then check whether `purge.tcl` is actually running and succeeding:
+
+```shell
+tail -100 /var/log/paloalto/pan-tsagent-purge.log
+crontab -l
+```
+
+Look for gaps in the purge log's timestamps or repeated non-zero exits — either indicates the purge cron job isn't keeping the configured agent count down.
+
+**Detection caveat:** `myexpect.exp` only recognizes a small set of named PAN-OS strings (`Unknown command`, `Object doesn't exist`, the HA sync warning); anything else, including a platform-capacity commit failure, falls through to the generic `-nocase "error"`/`-nocase "fail"` match and is reported simply as `## unknown error -- please report this condition`. If a `commit-all` push to a large template stack is slow enough to exceed the 45-second `timeout`, the same failure can instead surface as `Timeout occurred`. In both cases, the actual PAN-OS response text is captured immediately above that line in the log (via `myexec`'s `log "info" "$args $results"`) — check it for the real error rather than relying on the generic message.
+
+**Config drift caveat:** `discover.tcl`'s "already configured" check (`tsagent-configured.exp`) reads the configuration in configure mode, which reflects the *candidate* config, not the committed/running config. If a `set template ... ts-agent ...` edit lands in the candidate config but the following commit or commit-all then fails (e.g. due to platform capacity), that host will still be reported as "already configured" on the next discovery run and won't be retried or re-flagged. If an agent seems to have gone missing without ever reappearing as newly discovered, cross-check Panorama for a failed or partial commit job around the relevant timestamp:
+
+```
+> show jobs all
+> show jobs id <job-id>
+```
+
 ## Manual verification
 
 ### Test ICMP reachability
