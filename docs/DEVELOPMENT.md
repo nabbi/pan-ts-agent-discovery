@@ -8,6 +8,7 @@ Tests use Tcl's built-in `tcltest` package -- no additional dependencies require
 
 ```shell
 tclsh src/tests/common-proc.test.tcl
+expect src/tests/myexpect.test.tcl
 ```
 
 ### What is tested
@@ -16,8 +17,17 @@ The test suite validates the core logic with mocked external commands (no networ
 
 **common-proc.tcl procedures**
 - `log` -- newline replacement, message truncation at 200 chars, syslog level forwarding
+- `myexec` -- results passthrough on success, exit-1 on non-zero CHILDSTATUS and on other exec errors, logging of args/results
 - `myfping` -- IPv4 address validation/filtering, fping exit code handling (0, 1, 2+)
 - `mytsagent` -- TLS certificate string matching, error code handling (1, 104, etc)
+- `mydig` -- hostname passthrough on success, exit-1 on failure, error-level logging on failure
+
+**exp/myexpect.exp**
+- Branch coverage for every named pattern (`Unknown command`, `Object doesn't exist` -> exit 65, HA sync warning, platform-capacity commit failure, generic error/invalid/fail catch-alls, timeout)
+- Priority: the platform-capacity branch is confirmed to win over the generic error/fail catch-alls when a message matches both
+- A clean prompt match with no error keywords returns normally
+
+This suite uses `expect` (not `tclsh`) since `myexpect.exp` drives the real `expect` command against a spawned process rather than pure Tcl logic. It spawns `/bin/echo`/`sleep` in place of an SSH session and asserts on the resulting exit code.
 
 **discover.tcl logic**
 - Panorama config pattern matching (DNS and IP modes)
@@ -34,7 +44,7 @@ The test suite validates the core logic with mocked external commands (no networ
 
 ### Test approach
 
-External commands (`fping`, `openssl`, `dig`, `logger`, `ssh`) are mocked at the `exec` level. The `exit` command is also mocked so fatal error paths can be tested without terminating the interpreter.
+External commands (`fping`, `openssl`, `dig`, `logger`, `ssh`) are mocked at the `exec` level. The `exit` command is also mocked so fatal error paths can be tested without terminating the interpreter. In `common-proc.test.tcl` the mock `exit` raises a catchable error; in `myexpect.test.tcl` it instead just records the code, since throwing an error out of an `expect` action block corrupts Expect's internal state. Note also that `spawn` sets `spawn_id` in the calling proc's local scope -- if you spawn from inside a test helper proc, `global spawn_id` is required before the spawn or `myexpect`'s own `expect` call won't find it and will hang until timeout.
 
 Tests focus on the pure logic and string parsing that is most likely to break during refactoring -- the parts you can validate without live infrastructure.
 

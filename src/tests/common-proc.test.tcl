@@ -143,6 +143,51 @@ test log-201-chars {log truncates message of 201 chars} -setup {
 
 
 # ========================================================================
+# myexec - generic exec wrapper used by .exp script invocations
+# ========================================================================
+
+test myexec-success {myexec returns results on success} -setup {
+    mock_exec_ok "Success"
+} -body {
+    myexec "some-script.exp" "arg1"
+} -cleanup {
+    mock_exec_clear
+} -result "Success"
+
+test myexec-success-logs {myexec logs args and results on success} -setup {
+    mock_exec_ok "Success"
+    set ::mock_logger_calls {}
+} -body {
+    myexec "some-script.exp" "arg1"
+    set call [lindex $::mock_logger_calls 0]
+    set msg [lindex $call end]
+    string match "*some-script.exp*Success*" $msg
+} -cleanup {
+    mock_exec_clear
+} -result 1
+
+test myexec-childstatus-fail-exits {myexec exits 1 on non-zero CHILDSTATUS} -setup {
+    mock_exec_fail "commit failed" 1
+} -body {
+    set caught [catch {myexec "some-script.exp"} err opts]
+    set code [dict get $opts -errorcode]
+    list $caught [lindex $code 0] [lindex $code 1]
+} -cleanup {
+    mock_exec_clear
+} -result {1 EXIT 1}
+
+test myexec-other-error-exits {myexec exits 1 on non-CHILDSTATUS error} -setup {
+    mock_exec_other_error "no such file"
+} -body {
+    set caught [catch {myexec "missing-script.exp"} err opts]
+    set code [dict get $opts -errorcode]
+    list $caught [lindex $code 0] [lindex $code 1]
+} -cleanup {
+    mock_exec_clear
+} -result {1 EXIT 1}
+
+
+# ========================================================================
 # myfping - IPv4 validation logic
 # ========================================================================
 
@@ -286,6 +331,58 @@ test mytsagent-cert-with-extra-text {mytsagent detects agent even in verbose out
     mock_exec_ok "Certificate:\n    Data:\n        Subject: CN = Terminal Server Agent v1.2\n        Validity:\n            Not Before: Jan 1 00:00:00 2024"
 } -body {
     mytsagent "10.0.0.1"
+} -cleanup {
+    mock_exec_clear
+} -result 1
+
+
+# ========================================================================
+# mydig - reverse DNS lookup wrapper
+# ========================================================================
+
+test mydig-success {mydig returns hostname on success} -setup {
+    mock_exec_ok "server01.domain.com."
+} -body {
+    mydig "10.0.0.1"
+} -cleanup {
+    mock_exec_clear
+} -result "server01.domain.com."
+
+test mydig-empty-result {mydig returns empty string when no PTR record} -setup {
+    mock_exec_ok ""
+} -body {
+    mydig "10.0.0.1"
+} -cleanup {
+    mock_exec_clear
+} -result ""
+
+test mydig-childstatus-fail-exits {mydig exits 1 on non-zero CHILDSTATUS} -setup {
+    mock_exec_fail "dig: couldn't get address" 1
+} -body {
+    set caught [catch {mydig "10.0.0.1"} err opts]
+    set code [dict get $opts -errorcode]
+    list $caught [lindex $code 0] [lindex $code 1]
+} -cleanup {
+    mock_exec_clear
+} -result {1 EXIT 1}
+
+test mydig-other-error-exits {mydig exits 1 on non-CHILDSTATUS error} -setup {
+    mock_exec_other_error "no such file"
+} -body {
+    set caught [catch {mydig "10.0.0.1"} err opts]
+    set code [dict get $opts -errorcode]
+    list $caught [lindex $code 0] [lindex $code 1]
+} -cleanup {
+    mock_exec_clear
+} -result {1 EXIT 1}
+
+test mydig-fail-logs-error-level {mydig logs at error level on failure} -setup {
+    mock_exec_fail "dig: couldn't get address" 1
+    set ::mock_logger_calls {}
+} -body {
+    catch {mydig "10.0.0.1"}
+    set call [lindex $::mock_logger_calls 0]
+    expr {[lsearch $call "user.error"] >= 0}
 } -cleanup {
     mock_exec_clear
 } -result 1
