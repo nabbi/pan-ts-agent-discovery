@@ -38,6 +38,8 @@ When enabled (`1`), discovered DNS resource records are used for the Panorama te
 
 When disabled (`0`), the raw IP address is used instead.
 
+A PTR value that isn't a plain hostname (letters, digits, `.`, `_`, `-`) is rejected and the host skipped -- see [TROUBLESHOOTING](TROUBLESHOOTING.md#suspicious-ptr-record-skipping).
+
 ### panorama
 
 ```tcl
