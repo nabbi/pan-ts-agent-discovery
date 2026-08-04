@@ -59,10 +59,15 @@ if {[string match $action "add"]} {
 
 # how many of the attempted objects actually changed the candidate config --
 # every "delete" that hit "Object doesn't exist" (tallied in skipped_deletes by
-# myexpect) was a no-op, not a change. Skip the commit/commit-all below entirely
-# if nothing was modified, since a commit with no candidate changes is itself
-# an edge case not worth risking (e.g. on PAN-OS versions/behaviors where an
-# empty partial commit errors instead of no-op'ing).
+# myexpect) was a no-op, not a change. Deliberately gate BOTH commit and
+# commit-all on this, not just commit: an empty commit is an edge case not
+# worth risking (e.g. on PAN-OS versions/behaviors where a no-change partial
+# commit errors instead of no-op'ing), and skipping commit-all alongside it
+# avoids an unconditional 15s wait + push to every template-stack on cycles
+# that changed nothing. Accepted tradeoff: if a *prior* run committed
+# successfully but died before reaching commit-all (e.g. a network blip),
+# that backlog won't get pushed by an all-already-absent cycle -- only by
+# some later run that has a genuine new change to commit.
 set skipped 0
 if { [info exists skipped_deletes] } { set skipped $skipped_deletes }
 set modified [expr {[llength $input] - $skipped}]
