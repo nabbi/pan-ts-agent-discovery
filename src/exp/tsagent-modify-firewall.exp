@@ -60,12 +60,26 @@ if {[string match $action "add"]} {
 
 }
 
+# how many of the attempted objects actually changed the candidate config --
+# every "delete" that hit "Object doesn't exist" (tallied in skipped_deletes by
+# myexpect) was a no-op, not a change. Skip the commit below entirely if nothing
+# was modified, since a commit with no candidate changes is itself an edge case
+# not worth risking (e.g. on PAN-OS versions/behaviors where an empty partial
+# commit errors instead of no-op'ing).
+set skipped 0
+if { [info exists skipped_deletes] } { set skipped $skipped_deletes }
+set modified [expr {[llength $input] - $skipped}]
+
 # commit comment - escaping spaces was not running clean, do not use them here
 set description "BackgroundInfrastructureTask-TerminalServicesAgent"
 
-# commit
-send "commit description $description partial admin $config(username)\n"
-myexpect "$prompt#"
+if { $modified > 0 } {
+    # commit
+    send "commit description $description partial admin $config(username)\n"
+    myexpect "$prompt#"
+} else {
+    puts "## Nothing to commit -- no candidate config changes were made\n"
+}
 
 # exit config mode
 send "exit\r"

@@ -85,6 +85,54 @@ test myexpect-clean-prompt-returns {matching prompt with no error keywords retur
     run_myexpect {admin@fw#} {admin@fw#}
 } -result {OK {}}
 
+# a fake PAN-OS-like CLI: echoes a prompt after every line it reads, and additionally
+# emits "Object doesn't exist" first for specific objects -- mirrors the real multi-command
+# interaction pattern used by tsagent-modify-panorama.exp/tsagent-modify-firewall.exp's
+# delete loop (repeated send "delete ... $object\r"; myexpect "$prompt#" over one PTY),
+# so this exercises the actual session shape rather than a single isolated myexpect call.
+set fake_cli_script {
+while IFS= read -r line; do
+    case "$line" in
+        *missing1*|*missing2*) echo "Object doesn't exist" ;;
+    esac
+    echo "admin@fw#"
+done
+}
+
+proc run_delete_batch {objects} {
+    global spawn_id fake_cli_script
+    set ::exit_code {}
+    unset -nocomplain ::skipped_deletes
+    spawn /bin/sh -c $fake_cli_script
+    foreach o $objects {
+        send "delete vsys vsys1 ts-agent $o\r"
+        myexpect "admin@fw#"
+        if {$::exit_code ne {}} {
+            catch {close}
+            catch {wait}
+            return [list EXIT $::exit_code]
+        }
+    }
+    catch {close}
+    catch {wait}
+    set skipped 0
+    if {[info exists ::skipped_deletes]} { set skipped $::skipped_deletes }
+    return [list OK $skipped]
+}
+
+test myexpect-delete-batch-mixed {
+    a delete batch with some missing and some present objects processes every
+    object in order -- no early abort -- and tallies exactly the missing ones
+} -body {
+    run_delete_batch {present1 missing1 present2 missing2 present3}
+} -result {OK 2}
+
+test myexpect-delete-batch-all-present {
+    a batch where nothing is missing leaves the skip counter at zero
+} -body {
+    run_delete_batch {present1 present2 present3}
+} -result {OK 0}
+
 test myexpect-timeout {no matching output before timeout exits 1} -body {
     set ::exit_code {}
     spawn sleep 3

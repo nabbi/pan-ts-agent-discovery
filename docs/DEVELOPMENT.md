@@ -27,8 +27,11 @@ The test suite validates the core logic with mocked external commands (no networ
 - `Object doesn't exist` -> warns, increments a `skipped_deletes` counter, and keeps waiting on the same expect (`exp_continue`) instead of aborting, so a prompt arriving right after it still completes the call normally
 - Priority: the platform-capacity branch is confirmed to win over the generic error/fail catch-alls when a message matches both
 - A clean prompt match with no error keywords returns normally
+- A simulated multi-object delete batch (`run_delete_batch`, driven against a fake PAN-OS-like CLI spawned via `/bin/sh`) confirms the real send/myexpect loop used by `tsagent-modify-panorama.exp`/`tsagent-modify-firewall.exp` processes every object in order without desyncing when some deletes hit "Object doesn't exist" and others don't, and that `skipped_deletes` tallies exactly the missing ones
 
-This suite uses `expect` (not `tclsh`) since `myexpect.exp` drives the real `expect` command against a spawned process rather than pure Tcl logic. It spawns `/bin/echo`/`sleep` in place of an SSH session and asserts on the resulting exit code.
+This suite uses `expect` (not `tclsh`) since `myexpect.exp` drives the real `expect` command against a spawned process rather than pure Tcl logic. It spawns `/bin/echo`/`sleep`/`sh` in place of an SSH session and asserts on the resulting exit code.
+
+**Not covered by the automated suite:** `tsagent-modify-panorama.exp`/`tsagent-modify-firewall.exp` themselves (the commit-skip-when-nothing-modified logic in each, which computes `modified` from `[llength $input] - skipped_deletes` and skips `commit`/`commit-all` when it's `0`) require a real or SSH-mocked PAN-OS session end to end via `ssh-init.exp`, which this environment's sandbox doesn't allow spawning fake binaries for. That arithmetic was verified in isolation (present/missing/mixed/add/empty-input cases) and the files were checked for brace/quote balance across their full length, but there is no automated regression test exercising the actual commit-vs-skip branch inside those two scripts.
 
 **discover.tcl logic**
 - Panorama config pattern matching (DNS and IP modes)
