@@ -27,6 +27,10 @@ proc exec {args} {
 
     if {$cmd eq "logger"} {
         lappend ::mock_logger_calls $clean
+        if {[info exists ::mock_logger_fail] && $::mock_logger_fail} {
+            return -code error -errorcode {POSIX ENOENT {no such file}} \
+                "couldn't execute \"logger\": no such file or directory"
+        }
         return ""
     }
 
@@ -67,6 +71,14 @@ proc mock_exec_clear {} {
     unset -nocomplain ::mock_exec_errorcode
 }
 
+proc mock_logger_fail {} {
+    set ::mock_logger_fail 1
+}
+
+proc mock_logger_ok {} {
+    unset -nocomplain ::mock_logger_fail
+}
+
 # mock exit so fatal paths throw a catchable error instead of killing the interpreter
 rename exit _real_exit
 proc exit {{code 0}} {
@@ -91,6 +103,45 @@ test log-newline-replacement {log replaces newlines with separator} -setup {
     set msg [lindex $call end]
     string match "*line1 :: line2 :: line3*" $msg
 } -result 1
+
+test log-bare-cr-replacement {
+    log replaces a bare \r (no accompanying \n) too, not just \n -- a stray CR
+    reaching logger raw lets a log viewer visually overwrite/hide the line
+    (log forging), which matters because some logged content is
+    attacker-influenceable (e.g. the raw PTR value discover.tcl logs when it
+    rejects one)
+} -setup {
+    set ::mock_logger_calls {}
+} -body {
+    log "error" "suspicious PTR record for 10.0.0.5, skipping: evil\rSAFE LOOKING TEXT"
+    set call [lindex $::mock_logger_calls 0]
+    set msg [lindex $call end]
+    list [string first "\r" $msg] [string match "*evil :: SAFE LOOKING TEXT*" $msg]
+} -result {-1 1}
+
+test log-crlf-replacement {
+    log collapses a \r\n pair into a single separator rather than two (one from
+    matching \r, one from matching \n)
+} -setup {
+    set ::mock_logger_calls {}
+} -body {
+    log "info" "line1\r\nline2"
+    set call [lindex $::mock_logger_calls 0]
+    set msg [lindex $call end]
+    string match "*line1 :: line2*" $msg
+} -result 1
+
+test log-mixed-cr-lf-replacement {
+    log handles a message mixing bare \r, bare \n, and \r\n in the same string,
+    with no raw CR or LF surviving into the logger argument
+} -setup {
+    set ::mock_logger_calls {}
+} -body {
+    log "info" "a\rb\nc\r\nd"
+    set call [lindex $::mock_logger_calls 0]
+    set msg [lindex $call end]
+    list [string first "\r" $msg] [string first "\n" $msg]
+} -result {-1 -1}
 
 test log-truncation {log truncates messages longer than 200 chars} -setup {
     set ::mock_logger_calls {}
@@ -141,6 +192,32 @@ test log-201-chars {log truncates message of 201 chars} -setup {
     string match "* ..." $msg
 } -result 1
 
+test log-logger-failure-does-not-abort {
+    log must not let a failing logger call (missing binary, /dev/log unavailable,
+    syslogd down) propagate an error -- syslog is the secondary/redundant sink and
+    a transient failure there must not crash a discover.tcl/purge.tcl run mid-batch
+} -setup {
+    set ::mock_logger_calls {}
+    mock_logger_fail
+} -body {
+    catch {log "info" "test message"}
+} -cleanup {
+    mock_logger_ok
+} -result 0
+
+test log-logger-failure-still-attempts-call {
+    log still attempts the logger call (and records it) even though the mock is
+    set to fail it -- confirms the catch wraps the call rather than skipping it
+} -setup {
+    set ::mock_logger_calls {}
+    mock_logger_fail
+} -body {
+    catch {log "info" "test message"}
+    llength $::mock_logger_calls
+} -cleanup {
+    mock_logger_ok
+} -result 1
+
 
 # ========================================================================
 # myexec - generic exec wrapper used by .exp script invocations
@@ -166,6 +243,17 @@ test myexec-success-logs {myexec logs args and results on success} -setup {
     mock_exec_clear
 } -result 1
 
+test myexec-success-logs-info-level {myexec logs at user.info on success} -setup {
+    mock_exec_ok "Success"
+    set ::mock_logger_calls {}
+} -body {
+    myexec "some-script.exp" "arg1"
+    set call [lindex $::mock_logger_calls 0]
+    expr {[lsearch $call "user.info"] >= 0}
+} -cleanup {
+    mock_exec_clear
+} -result 1
+
 test myexec-childstatus-fail-exits {myexec exits 1 on non-zero CHILDSTATUS} -setup {
     mock_exec_fail "commit failed" 1
 } -body {
@@ -176,6 +264,22 @@ test myexec-childstatus-fail-exits {myexec exits 1 on non-zero CHILDSTATUS} -set
     mock_exec_clear
 } -result {1 EXIT 1}
 
+test myexec-childstatus-fail-logs-error-level {
+    myexec logs at user.error, not user.info, when the child process fails --
+    otherwise SSH failures/timeouts/unknown-command/HA-sync/platform-capacity
+    rejections from the four .exp sub-scripts are indistinguishable from
+    routine success by syslog priority
+} -setup {
+    mock_exec_fail "commit failed" 1
+    set ::mock_logger_calls {}
+} -body {
+    catch {myexec "some-script.exp"}
+    set call [lindex $::mock_logger_calls 0]
+    expr {[lsearch $call "user.error"] >= 0}
+} -cleanup {
+    mock_exec_clear
+} -result 1
+
 test myexec-other-error-exits {myexec exits 1 on non-CHILDSTATUS error} -setup {
     mock_exec_other_error "no such file"
 } -body {
@@ -185,6 +289,19 @@ test myexec-other-error-exits {myexec exits 1 on non-CHILDSTATUS error} -setup {
 } -cleanup {
     mock_exec_clear
 } -result {1 EXIT 1}
+
+test myexec-other-error-logs-error-level {
+    myexec logs at user.error on a non-CHILDSTATUS exec error too
+} -setup {
+    mock_exec_other_error "no such file"
+    set ::mock_logger_calls {}
+} -body {
+    catch {myexec "missing-script.exp"}
+    set call [lindex $::mock_logger_calls 0]
+    expr {[lsearch $call "user.error"] >= 0}
+} -cleanup {
+    mock_exec_clear
+} -result 1
 
 
 # ========================================================================

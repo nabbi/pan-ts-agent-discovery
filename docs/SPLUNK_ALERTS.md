@@ -18,13 +18,23 @@ field, so match it as a substring rather than a `tag=` field. Adjust
 `sourcetype`/`index` below to whatever your syslog input uses (commonly
 `sourcetype=syslog`).
 
-**Scope note:** some errors documented in
+None of the SPL below filters on the `user.error` vs `user.info` priority itself --
+which Splunk field (if any) carries that depends on your syslog TA/sourcetype, so
+these searches key off message *content* only. If your input parses priority into a
+field (e.g. `syslog_severity` or similar), add `severity=error` (or equivalent) to
+each search below for a tighter match.
+
+**Scope note:** the errors documented in
 [TROUBLESHOOTING.md](TROUBLESHOOTING.md#common-errors) -- SSH failure, session
 timeout, HA sync warning, platform capacity exceeded, unrecognized PAN-OS error -- are
-written via `send_user` in the `.exp` scripts, not the `log` proc, so they never reach
-syslog; they only land in the cron-redirected file logs. They're excluded here for
-that reason. If you need alerting on those too, they'd need forwarding the file logs
-separately, or routing `.exp` output through `log`.
+written via `send_user` in the `.exp` scripts, not the `log` proc directly. But all
+four `.exp` sub-scripts (`tsagent-configured`, `tsagent-modify-firewall`,
+`tsagent-modify-panorama`, `tsagent-not-connected`) are invoked through `myexec`
+(`src/inc/common-proc.tcl`), which captures the failed child's combined output --
+including whatever it `send_user`'d -- into `$results` and logs it via `log`. So
+these *do* reach syslog, at `user.error` once the child exits non-zero (`user.info`
+on success), just truncated to 200 chars by the `log` proc; the full untruncated text
+is only in the cron-redirected file log. See alert #6 below.
 
 ## Alert catalog
 
@@ -36,9 +46,10 @@ cron interval.
 |---|-----------|--------|-------------------|
 | 1 | Suspicious PTR record rejected | discover.tcl | `suspicious PTR record for * skipping:` |
 | 2 | Could not parse `not-conn` line | purge.tcl | `purge: could not parse not-conn line, skipping:` |
-| 3 | TS Agent TLS probe error (incl. ECONNRESET) | discover.tcl (mytsagent) | `<host> <status>` after myexec/mytsagent error |
+| 3 | TS Agent TLS probe error (incl. ECONNRESET) | discover.tcl (mytsagent) | `<host> <status>` at `user.error`, two tokens |
 | 4 | Reverse DNS lookup failed | discover.tcl (mydig) | `mydig <ip> <status> ...` |
-| 5 | fping fatal error (exit 2+) | discover.tcl (myfping) | `<args> <status> <results>` |
+| 5 | fping fatal error (exit 2+) | discover.tcl (myfping) | `<args> <status> <results>` at `user.error`, 3+ tokens |
+| 6 | `.exp` sub-script failure (SSH, timeout, unknown command, HA sync, platform capacity, unrecognized error) | discover.tcl / purge.tcl (myexec) | myexec output not matched by #1-#5's shapes (needs a priority filter, see below) |
 
 ### 1. Suspicious PTR record rejected
 
@@ -68,11 +79,15 @@ index=paloalto sourcetype=syslog "purge.tcl" "could not parse not-conn line"
 ### 3. TS Agent TLS probe error
 
 Covers any non-1 exit from the port 5009 probe, including the ECONNRESET (104) case
-noted in TROUBLESHOOTING.md. Expected occasionally; alert on volume rather than any
-single hit:
+noted in TROUBLESHOOTING.md. `mytsagent` logs only `<host> <status>` -- two
+whitespace-separated tokens, nothing else -- so match on that shape rather than the
+`## Error` banner, which is `puts` to the file log only and never reaches syslog.
+Expected occasionally; alert on volume rather than any single hit:
 
 ```spl
-index=paloalto sourcetype=syslog "discover.tcl" "## Error"
+index=paloalto sourcetype=syslog "discover.tcl"
+| rex field=_raw "discover\.tcl (?<body>.+)$"
+| regex body="^\S+\s+\d+$"
 | stats count
 | where count > 5
 ```
@@ -88,20 +103,51 @@ index=paloalto sourcetype=syslog "discover.tcl" "mydig"
 
 ### 5. fping fatal error
 
-Also fatal (halts `discover.tcl`). `exit 1` (some hosts unreachable) is normal for
-subnet scans and excluded; anything else (`2`+) is not:
+Also fatal (halts `discover.tcl`). `myfping` only calls `log "error"` when
+`$status && $status != 1` -- exit `1` (some hosts unreachable, normal for subnet
+scans) never reaches this level, so there's no need to filter it back out in SPL.
+The logged shape is `<args> <status> <results>` -- 3+ tokens, which is how this is
+told apart from search 3's 2-token `<host> <status>` shape:
 
 ```spl
-index=paloalto sourcetype=syslog "discover.tcl" "## Error"
-| rex field=_raw "## Error (?<exit_code>\d+)"
-| search exit_code!=1
+index=paloalto sourcetype=syslog "discover.tcl"
+| rex field=_raw "discover\.tcl (?<body>.+)$"
+| regex body="^\S+\s+\d+\s+\S"
 ```
 
-Note searches 3 and 5 share the same `"## Error"` text pattern from `myexec`'s
-generic error path -- if you need to tell them apart in Splunk, that requires
-distinguishing the message content further (e.g. `mytsagent` errors carry only a
-host and status code, `myfping` errors carry the fping args) rather than the log
-proc adding separate markers.
+Both searches key off the two/three-token content shape rather than a shared
+`## Error` text marker -- that banner is `puts` to the file log only (both `myexec`
+and `mytsagent`/`myfping` print it after logging, never through `logger`) and never
+appears in syslog. Neither shape can currently occur at `info` level, so they don't
+need an explicit priority filter to avoid false positives from successful runs.
+
+### 6. `.exp` sub-script failure
+
+Covers SSH failure, session timeout, HA sync warning, platform capacity exceeded,
+and unrecognized PAN-OS errors from any of the four `.exp` scripts -- see the scope
+note above. Fires on the `user.error` line `myexec` now writes whenever the child it
+ran exits non-zero, message truncated to 200 chars. Excludes searches 3-5 (which are
+also `myexec`-adjacent but have a distinct known shape) so this catches the rest --
+anything from `tsagent-configured.exp`, `tsagent-modify-firewall.exp`,
+`tsagent-modify-panorama.exp`, or `tsagent-not-connected.exp` failing:
+
+```spl
+index=paloalto sourcetype=syslog ("discover.tcl" OR "purge.tcl")
+| rex field=_raw "(discover|purge)\.tcl (?<body>.+)$"
+| where NOT match(body, "^\S+\s+\d+$") AND NOT match(body, "^\S+\s+\d+\s+\S")
+   AND NOT match(body, "^mydig ") AND NOT match(body, "^suspicious PTR record")
+   AND NOT match(body, "^purge: could not parse")
+```
+
+Unlike #3/#5, this shape (arbitrary `myexec` args + captured output) is *not*
+distinguishable from a successful `myexec` call by content alone -- a normal
+`tsagent-configured.exp`/`tsagent-not-connected.exp` run also logs its script path
+and output at `info`, and could coincidentally not match any exclusion above. This
+search needs the priority filter mentioned earlier (`severity=error` or your TA's
+equivalent) to avoid false positives from routine runs; without one, treat it as a
+starting point to tune against your own traffic rather than something to page on
+directly. Routing each `.exp` failure through a more specific `log "error"` call at
+the source instead of relying on `myexec`'s generic capture would also narrow this.
 
 ## Example `savedsearches.conf`
 

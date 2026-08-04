@@ -10,6 +10,9 @@ Both scripts append stdout to log files when run from cron:
 | purge.tcl | `/var/log/paloalto/pan-tsagent-purge.log` |
 
 Syslog messages are also written via `logger` at `user.info` and `user.error` levels.
+Syslog is the secondary sink -- if the `logger` call itself fails (missing binary,
+`/dev/log` unavailable, syslogd down), the run continues and falls back to printing
+the same message to stdout (see "Logger unavailable" below) rather than aborting.
 
 ### Reviewing logs
 
@@ -163,6 +166,24 @@ fping exit codes: `0` = all reachable, `1` = some unreachable (normal for subnet
 ```
 
 `purge.tcl` parses each `not-conn:` line from the firewall as a Tcl list; an unbalanced brace or quote in the device's output throws a parse error. That one line is skipped and logged at `error` level -- it does not abort the rest of the purge run, so other agents in the same batch are still evaluated. A single occurrence is usually a transient CLI formatting glitch; repeated occurrences for the same agent warrant checking `show user ts-agent statistics` directly on the firewall.
+
+### Logger unavailable
+
+```
+## logger failed: couldn't execute "logger": no such file or directory
+## info: new ts-agent server01
+```
+
+The shared `log` proc (`src/inc/common-proc.tcl`) tried to write to syslog via
+`logger` and the call itself failed -- e.g. the `logger` binary is missing, the
+syslog daemon isn't running, or `/dev/log` isn't reachable (a minimal container
+without a syslog service is a common case). This is caught rather than allowed to
+abort the run: the original level and message are printed to stdout instead, so
+they still land in the cron-redirected file log, and the rest of the discovery/purge
+run continues normally. Nothing in the affected run's file log is lost, but that
+event -- and every other `log` call for the rest of the run -- won't reach syslog
+until `logger` starts working again. If this appears in the file logs, check that
+`logger` is installed and syslog is running/reachable in the container/host.
 
 ### No DNS PTR record
 

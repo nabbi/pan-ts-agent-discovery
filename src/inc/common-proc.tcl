@@ -4,12 +4,25 @@ exec tclsh "$0" "$@"
 # nic@boet.cc
 
 # shothand our logger
+# syslog is the secondary/redundant sink -- the file log (via stdout) is primary,
+# so a logger failure (missing binary, /dev/log unavailable, syslogd down) must not
+# abort the run. catch it and fall back to stdout so the event is still recorded
+# somewhere instead of taking down mid-run.
 proc log {level msg} {
-    set m [regsub -all "\n" ${msg} " :: "]
+    # a bare \r (no \n) is untouched by a \n-only regsub and reaches logger raw --
+    # some of what lands here is attacker-influenceable (e.g. the raw, unvalidated
+    # PTR value logged when discover.tcl rejects it), and a stray \r lets that
+    # content visually overwrite/hide the alert line in a terminal-based log
+    # viewer (tail/less), a classic CR log-forging trick. Collapse \r\n, lone \r,
+    # and lone \n uniformly instead of \n alone.
+    set m [regsub -all {\r\n|\r|\n} ${msg} " :: "]
     if { [string length $m] > 200 } {
         set m "[string range $m 0 200] ..."
     }
-    exec logger -p user.${level} "[info script] ${m}"
+    if {[catch {exec logger -p user.${level} "[info script] ${m}"} err]} {
+        puts "## logger failed: $err"
+        puts "## $level: $m"
+    }
 }
 
 
@@ -27,7 +40,7 @@ proc myexec {args} {
         }
     }
 
-    log "info" "$args $results"
+    log [expr {$status ? "error" : "info"}] "$args $results"
 
     if { $status } {
         puts "## Error $status ##"

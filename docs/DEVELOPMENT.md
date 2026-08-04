@@ -16,8 +16,8 @@ expect src/tests/myexpect.test.tcl
 The test suite validates the core logic with mocked external commands (no network or SSH required).
 
 **common-proc.tcl procedures**
-- `log` -- newline replacement, message truncation at 200 chars, syslog level forwarding
-- `myexec` -- results passthrough on success, exit-1 on non-zero CHILDSTATUS and on other exec errors, logging of args/results
+- `log` -- newline replacement, message truncation at 200 chars, syslog level forwarding, and that a failing `logger` call is caught and falls back to stdout instead of aborting the run (syslog is the secondary sink; it must not be able to take down discover.tcl/purge.tcl)
+- `myexec` -- results passthrough on success, exit-1 on non-zero CHILDSTATUS and on other exec errors, logging of args/results at `info` on success and `error` on either failure path
 - `myfping` -- IPv4 address validation/filtering, fping exit code handling (0, 1, 2+)
 - `mytsagent` -- TLS certificate string matching, error code handling (1, 104, etc)
 - `mydig` -- hostname passthrough on success, exit-1 on failure, error-level logging on failure
@@ -62,9 +62,10 @@ Place new test files in `src/tests/` using the `*.test.tcl` naming convention an
 ```shell
 tclsh src/tests/fuzz-injection.test.tcl [iterations] [seed]
 tclsh src/tests/fuzz-purge-parsing.test.tcl [iterations] [seed]
+tclsh src/tests/fuzz-log.test.tcl [iterations] [seed]
 ```
 
-Both harnesses are seeded (default seed `1`) so a failing run is reproducible, and both exit 0 on a clean run / 1 with repro cases printed on a violation. Neither is wired into `common-proc.test.tcl`'s pass/fail suite -- run them separately.
+All three harnesses are seeded (default seed `1`) so a failing run is reproducible, and all exit 0 on a clean run / 1 with repro cases printed on a violation. None are wired into `common-proc.test.tcl`'s pass/fail suite -- run them separately.
 
 ### fuzz-injection.test.tcl
 
@@ -85,3 +86,16 @@ Note this only covers `discover.tcl`'s path (DNS mode). `purge.tcl`'s `$object`/
 `purge.tcl` parses each `not-conn` line with plain `lindex`, which parses the line as a Tcl *list* -- an unbalanced brace or quote anywhere in the device's output throws a real Tcl error (`unmatched open brace/quote in list`). Without a catch around it, that error would propagate uncaught and abort the whole purge run, leaving stale agents unremoved -- a concrete mechanism for the "purge script has failed" scenario documented in `docs/TROUBLESHOOTING.md`'s platform-capacity section.
 
 This harness generates adversarial single lines (unbalanced braces/quotes, trailing backslashes, oversized input) plus batches that sandwich one adversarial line between two well-formed ones, and checks that `purge.tcl`'s per-line `catch` (added alongside this harness) never lets a parse error escape, and that one malformed line never takes out its neighbors in the same batch.
+
+### fuzz-log.test.tcl
+
+The shared `log` proc (`src/inc/common-proc.tcl`) is the one function every logged event in both scripts passes through on its way to syslog -- and some of what reaches it is attacker-influenceable, e.g. discover.tcl logs the raw, unvalidated PTR value when it rejects one (the "security-relevant" alert in `docs/SPLUNK_ALERTS.md`), and purge.tcl logs the raw, unparsed `not-conn` line from firewall CLI output. This harness mocks `exec`/`logger` (so it never touches the real host syslog) and runs adversarial messages -- control characters, bare `\r` without `\n`, mixed line endings, oversized/multibyte content -- directly through the real `log` proc, with the mock `logger` alternating between succeeding and failing on each case.
+
+It checks four invariants:
+
+- **no-throw** -- `log` must never raise an uncaught error, regardless of message content or whether the `logger` call itself succeeds or fails. Syslog is the secondary/redundant sink; a failure writing to it must not be able to abort a discover.tcl/purge.tcl run mid-batch.
+- **no-raw-crlf** -- the message argument actually handed to `logger` must never contain a raw `\r` or `\n`. This harness originally found a live violation: the truncation/sanitization regex only matched `\n`, so a bare `\r` (no accompanying `\n`) passed through untouched. That matters because a stray `\r` lets logged content visually overwrite/hide the line in a terminal-based log viewer (`tail`/`less`) -- a CWE-117 log-forging trick -- directly undermining the one log line documented as security-relevant. Fixed by replacing the `\n`-only regsub with one that collapses `\r\n`, lone `\r`, and lone `\n` uniformly.
+- **length-bound** -- the message body must never exceed 200 chars (plus the `...` truncation suffix), regardless of input length or byte content.
+- **logger-attempted** -- `log` must still attempt the `logger` call (not silently skip it) even when it's set to fail, so the fallback-to-stdout path (see below) only engages on a genuine failure, not as a shortcut.
+
+Also caught in the same pass: `log`'s `exec logger` call was itself unguarded -- every other `exec` in the codebase (`myexec`, `myfping`, `mytsagent`, `mydig`) is wrapped in `catch`, but this one wasn't. A missing `logger` binary, unreachable `/dev/log`, or a stopped syslog daemon would throw an uncaught Tcl error out of `log` and crash the entire run. Fixed by wrapping the call in `catch` and falling back to `puts` (still captured by the cron file-log redirect) on failure -- see "Logger unavailable" in `docs/TROUBLESHOOTING.md`.
