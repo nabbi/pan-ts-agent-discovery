@@ -81,5 +81,9 @@ foreach stack $config(templatestacks) {
 send "exit\r"
 expect eof
 
+if { [info exists skipped_deletes] && $skipped_deletes > 0 } {
+    puts "## Warning: $skipped_deletes delete target(s) were already absent (config out of sync between firewall and Panorama template) -- continued\n"
+}
+
 puts "Success"
 exit 0

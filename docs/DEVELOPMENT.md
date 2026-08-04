@@ -23,7 +23,8 @@ The test suite validates the core logic with mocked external commands (no networ
 - `mydig` -- hostname passthrough on success, exit-1 on failure, error-level logging on failure
 
 **exp/myexpect.exp**
-- Branch coverage for every named pattern (`Unknown command`, `Object doesn't exist` -> exit 65, HA sync warning, platform-capacity commit failure, generic error/invalid/fail catch-alls, timeout)
+- Branch coverage for every named pattern (`Unknown command`, HA sync warning, platform-capacity commit failure, generic error/invalid/fail catch-alls, timeout)
+- `Object doesn't exist` -> warns, increments a `skipped_deletes` counter, and keeps waiting on the same expect (`exp_continue`) instead of aborting, so a prompt arriving right after it still completes the call normally
 - Priority: the platform-capacity branch is confirmed to win over the generic error/fail catch-alls when a message matches both
 - A clean prompt match with no error keywords returns normally
 

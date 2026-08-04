@@ -122,13 +122,13 @@ Panorama's running config is out of sync with the HA peer. Sync before retrying:
 > request high-availability sync-to-remote running-config
 ```
 
-### Object doesn't exist (exit 65)
+### Object doesn't exist
 
 ```
-## Did you attempt to delete a record which was not present!?
+## WARNING: delete target not present (already removed / config out of sync). Skipping, continuing.
 ```
 
-Purge tried to delete a TS Agent that was already removed from the Panorama template. This can happen if another admin or process deleted the agent between the firewall query and the Panorama commit. Usually harmless on the next run.
+Purge tried to delete a TS Agent that was already removed from the Panorama template or firewall config -- e.g. another admin or process deleted it between the firewall query and the commit, or the firewall and Panorama template drifted out of sync. This is non-fatal: `myexpect.exp` warns and keeps going, so the rest of the batch (remaining deletes and the commit) still completes in the same run. `tsagent-modify-panorama.exp`/`tsagent-modify-firewall.exp` print a one-line summary (`## Warning: N delete target(s) were already absent ...`) near the end of their output if this happened, which lands in the purge log via `myexec`. If it fires repeatedly, or for the same object across multiple purge runs, that points at persistent drift between the firewall's live TS Agent state and the Panorama template config worth reconciling by hand.
 
 ### Error with exit code 104 (ECONNRESET)
 

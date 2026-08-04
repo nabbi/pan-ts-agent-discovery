@@ -25,6 +25,7 @@ set timeout 5
 proc run_myexpect {text {prompt "NEVERMATCH#"}} {
     global spawn_id
     set ::exit_code {}
+    unset -nocomplain ::skipped_deletes
     spawn /bin/echo $text
     myexpect $prompt
     if {$::exit_code ne {}} {
@@ -37,9 +38,20 @@ test myexpect-unknown-command {"Unknown command" triggers exit 1} -body {
     run_myexpect "Unknown command: foo"
 } -result {EXIT 1}
 
-test myexpect-object-doesnt-exist {"Object doesn't exist" triggers exit 65} -body {
-    run_myexpect "Object doesn't exist"
-} -result {EXIT 65}
+test myexpect-object-doesnt-exist-does-not-abort {
+    "Object doesn't exist" warns and keeps waiting instead of exiting, so a
+    prompt arriving right after it in the same output still completes normally
+} -body {
+    run_myexpect "Object doesn't exist\nadmin@fw#" "admin@fw#"
+} -result {OK {}}
+
+test myexpect-object-doesnt-exist-counts-skip {
+    "Object doesn't exist" increments the skipped_deletes counter so callers
+    can report a summary instead of the run silently swallowing it
+} -body {
+    run_myexpect "Object doesn't exist\nadmin@fw#" "admin@fw#"
+    set ::skipped_deletes
+} -result {1}
 
 test myexpect-ha-sync-warning {HA sync warning triggers exit 1} -body {
     run_myexpect "WARNING: The running configuration is not currently synchronized to the HA peer"

@@ -15,11 +15,17 @@ proc myexpect {p} {
             send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
             exit 1
         }
-        # WARN against the removal of non-existent objects
+        # WARN against the removal of non-existent objects, but don't abort the run over
+        # it -- this fires when the delete target is already gone (e.g. firewall and
+        # Panorama template config drifted out of sync), which is recoverable: nothing
+        # left to delete there. Warn and keep waiting on the same expect for the prompt
+        # so the remaining deletes/commit in this batch still happen.
         "Object doesn't exist" {
-            send_user "\n## Did you attempt to delete a record which was not present!?\n"
-            send_user "\n## Failure detected.\n$expect_out(buffer)\n## Terminating.\n"
-            exit 65
+            global skipped_deletes
+            if {![info exists skipped_deletes]} { set skipped_deletes 0 }
+            incr skipped_deletes
+            send_user "\n## WARNING: delete target not present (already removed / config out of sync). Skipping, continuing.\n$expect_out(buffer)\n"
+            exp_continue
         }
         
         # WARNING: The running configuration is not currently synchronized to the HA peer, and therefore, this commit will only be applied to the local device.
