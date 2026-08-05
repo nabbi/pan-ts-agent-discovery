@@ -118,3 +118,43 @@ newer OpenSSH defaults are stricter than Panorama
 host *
     HostKeyAlgorithms=+ssh-rsa
 ```
+
+# Upgrading / pinning a version
+
+Releases are tagged `vX.Y` on the `master` branch.
+
+```shell
+git fetch --tags
+git tag -l --sort=-v:refname   # list available versions, newest first
+```
+
+## Upgrade to the latest release
+
+```shell
+git fetch --tags
+git checkout master
+git pull
+```
+
+## Pin to a specific version
+
+Useful if you want to test a release before rolling it out, or hold back from `master` in production.
+
+```shell
+git fetch --tags
+git checkout v1.7
+```
+
+This puts the repo in a detached HEAD state at that tag. `src/inc/config.tcl` is git-ignored so it survives switching versions, but always diff `config.example.tcl` after upgrading in case new parameters were added -- see [CONFIGURATION](CONFIGURATION.md).
+
+To go back to tracking `master`:
+
+```shell
+git checkout master
+```
+
+If you built the [Docker image](#docker), rebuild it after switching versions so the container picks up the checked-out code:
+
+```shell
+docker build .
+```
