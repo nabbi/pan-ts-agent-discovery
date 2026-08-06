@@ -1,0 +1,115 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
+  <diagram id="sshinit" name="SSH Session Lifecycle">
+    <mxGraphModel dx="866" dy="459" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="SSH Session Lifecycle (exp/ssh-init.exp)" style="text;html=1;fontSize=18;fontStyle=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="150" y="15" width="800" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="&lt;b&gt;ssh-init.exp&lt;/b&gt; sourced&lt;br&gt;($hostname, config(username/password/strict) set by caller)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="70" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="d_strict" value="config(strict)?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="360" y="150" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="strict_yes" value="prompt =&lt;br&gt;&quot;$user@$hostname*active?&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="120" y="240" width="220" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="strict_no" value="prompt = &quot;$user@*&quot;&lt;br&gt;(one fuzzy char for A/B, 1/2 naming)" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="480" y="240" width="240" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="spawn" value="&lt;b&gt;spawn&lt;/b&gt; ssh -q -o StrictHostKeyChecking=no&lt;br&gt;-o UserKnownHostsFile=/dev/null $user@$hostname" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="330" y="325" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="d_connect" value="expect:&lt;br&gt;timeout / eof / &quot;Password:&quot;?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="405" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t_timeout1" value="exit 1 &amp;mdash; &quot;Failed to get&lt;br&gt;password prompt&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="395" width="300" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="t_eof" value="exit 1 &amp;mdash; &quot;SSH failure&lt;br&gt;for $hostname&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="450" width="300" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="send_pw" value="send &quot;$config(password)\r&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="330" y="510" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="d_auth" value="expect:&lt;br&gt;timeout / -nocase $prompt?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="580" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="t_timeout2" value="exit 1 &amp;mdash; &quot;Login failed.&lt;br&gt;Password incorrect.&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="700" y="585" width="300" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="send_pager" value="send &quot;set cli pager off\r&quot;; sleep 1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="330" y="675" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="myexpect1" value="&lt;b&gt;myexpect(&quot;$prompt&amp;gt;&quot;)&lt;/b&gt;&lt;br&gt;see myexpect-error-tree.drawio" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;dashed=1;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="330" y="740" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="send_script" value="send &quot;set cli scripting-mode on\r&quot;; sleep 1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="330" y="815" width="280" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="myexpect2" value="&lt;b&gt;myexpect(&quot;$prompt&amp;gt;&quot;)&lt;/b&gt;&lt;br&gt;see myexpect-error-tree.drawio" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;dashed=1;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="330" y="880" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="end" value="&lt;b&gt;session ready&lt;/b&gt; &amp;mdash; caller sends its&lt;br&gt;own commands (config-output-format,&lt;br&gt;configure, show/set/delete, commit ...)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;html=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="960" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" style="strokeColor=#6c8ebf;" parent="1" source="start" target="d_strict" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2y" value="yes" style="strokeColor=#6c8ebf;" parent="1" source="d_strict" target="strict_yes" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2n" value="no" style="strokeColor=#6c8ebf;" parent="1" source="d_strict" target="strict_no" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3a" style="strokeColor=#6c8ebf;edgeStyle=orthogonalEdgeStyle;" parent="1" source="strict_yes" target="spawn" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3b" style="strokeColor=#6c8ebf;edgeStyle=orthogonalEdgeStyle;" parent="1" source="strict_no" target="spawn" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" style="strokeColor=#6c8ebf;" parent="1" source="spawn" target="d_connect" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5a" value="timeout" style="strokeColor=#b85450;" parent="1" source="d_connect" target="t_timeout1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5b" value="eof" style="strokeColor=#b85450;" parent="1" source="d_connect" target="t_eof" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5c" value="&quot;Password:&quot;" style="strokeColor=#82b366;" parent="1" source="d_connect" target="send_pw" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="strokeColor=#6c8ebf;" parent="1" source="send_pw" target="d_auth" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7a" value="timeout" style="strokeColor=#b85450;" parent="1" source="d_auth" target="t_timeout2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7b" value="prompt matched" style="strokeColor=#82b366;" parent="1" source="d_auth" target="send_pager" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="strokeColor=#6c8ebf;" parent="1" source="send_pager" target="myexpect1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" style="strokeColor=#6c8ebf;" parent="1" source="myexpect1" target="send_script" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" style="strokeColor=#6c8ebf;" parent="1" source="send_script" target="myexpect2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" style="strokeColor=#82b366;" parent="1" source="myexpect2" target="end" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="60" y="1045" width="980" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="note_text" value="&lt;b&gt;Callers&lt;/b&gt; (each source $path/ssh-init.exp after setting $hostname): tsagent-configured.exp &amp;bull; tsagent-modify-panorama.exp &amp;bull; tsagent-modify-firewall.exp &amp;bull; tsagent-not-connected.exp. config(strict)=0 relaxes the prompt match by one fuzzy character to tolerate A/B or 1/2 firewall naming behind a GSLB/VIP (see CONFIGURATION.md). See TROUBLESHOOTING.md &amp;quot;Timeout occurred&amp;quot; and &amp;quot;SSH failure / Password incorrect&amp;quot; for operator guidance on the two exit-1 branches above the password prompt, and myexpect-error-tree.drawio for everything that can happen inside the two myexpect() calls after login." style="text;html=1;fontSize=10;align=left;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="80" y="1055" width="940" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

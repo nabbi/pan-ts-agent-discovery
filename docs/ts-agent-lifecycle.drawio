@@ -1,0 +1,165 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
+  <diagram id="lifecycle" name="TS Agent Object Lifecycle">
+    <mxGraphModel dx="866" dy="459" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1350" pageHeight="1150" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="TS Agent Object Lifecycle &amp;mdash; across discover.tcl and purge.tcl" style="text;html=1;fontSize=18;fontStyle=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="380" y="15" width="700" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="discover_band" value="&lt;i&gt;discover.tcl (hourly)&lt;/i&gt;" style="text;html=1;fontSize=11;align=left;fontColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="40" y="60" width="220" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="purge_band" value="&lt;i&gt;purge.tcl (daily)&lt;/i&gt;" style="text;html=1;fontSize=11;align=left;fontColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="40" y="555" width="220" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="st_unseen" value="Not tracked&lt;br&gt;(no TS Agent object exists)" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="560" y="90" width="280" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="st_discovered" value="Discovered&lt;br&gt;(fping alive + TLS cert matches&lt;br&gt;&quot;Terminal Server Agent&quot;)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="180" width="320" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="st_candidate" value="Candidate: added&lt;br&gt;(set ts-agent ... &amp;mdash; tsagent-modify-*.exp add)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="290" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="st_drift" value="Stuck in candidate (drift)&lt;br&gt;commit / commit-all fails&lt;br&gt;(e.g. platform capacity)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="940" y="290" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="st_alreadyconf" value="Already configured&lt;br&gt;(cached-config match &amp;mdash; skip)" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="395" width="320" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="st_committed" value="Committed / Running&lt;br&gt;(commit [+ commit-all] succeeded)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="140" y="395" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="st_connected" value="Connected&lt;br&gt;(firewall: not in not-conn list)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="140" y="490" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="st_malformed" value="Malformed not-conn line&lt;br&gt;(unbalanced brace/quote &amp;mdash; that&lt;br&gt;line skipped, object state unchanged)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="490" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="st_notconn" value="Not-connected (reported)&lt;br&gt;(firewall: show ... | match not-conn)" style="rounded=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="140" y="595" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="st_glitch" value="Kept &amp;mdash; momentary glitch&lt;br&gt;(mytsagent recheck succeeds)" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="940" y="595" width="280" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="st_confirmedstale" value="Confirmed unreachable&lt;br&gt;(mytsagent recheck fails)" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="140" y="700" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="st_deleteissued" value="Delete issued&lt;br&gt;(delete ts-agent &amp;mdash; tsagent-modify-*.exp delete)" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="140" y="800" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="st_absent" value="Already absent&lt;br&gt;(&quot;Object doesn&amp;#39;t exist&quot; &amp;mdash; myexpect&lt;br&gt;warns + exp_continue, tallied)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="940" y="800" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="st_purged" value="Purged&lt;br&gt;(commit removed it from running config)" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="140" y="900" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="fping alive +&lt;br&gt;mytsagent cert match" style="strokeColor=#6c8ebf;html=1;" parent="1" source="st_unseen" target="st_discovered" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="cached config already&lt;br&gt;has agent_name" style="strokeColor=#999999;dashed=1;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;entryX=0;entryY=0.5;html=1;" parent="1" source="st_discovered" target="st_alreadyconf" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="210" />
+              <mxPoint x="500" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="not yet configured" style="strokeColor=#6c8ebf;" parent="1" source="st_discovered" target="st_candidate" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="commit (+ commit-all)&lt;br&gt;succeeds" style="strokeColor=#82b366;edgeStyle=orthogonalEdgeStyle;html=1;" parent="1" source="st_candidate" target="st_committed" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="commit / commit-all fails" style="strokeColor=#d79b00;" parent="1" source="st_candidate" target="st_drift" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="next cycle: &quot;already configured&quot;&lt;br&gt;check reads CANDIDATE config" style="strokeColor=#d79b00;dashed=1;edgeStyle=orthogonalEdgeStyle;html=1;" parent="1" source="st_drift" target="st_alreadyconf" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1090" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="TS Agent reachable" style="strokeColor=#82b366;" parent="1" source="st_committed" target="st_connected" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="daily purge: firewall&lt;br&gt;reports not-conn" style="strokeColor=#d6b656;html=1;" parent="1" source="st_connected" target="st_notconn" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_malformed" value="malformed line -- skip" style="strokeColor=#d79b00;dashed=1;fontSize=9;" parent="1" source="st_malformed" target="st_notconn" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" value="mytsagent recheck:&lt;br&gt;reachable" style="strokeColor=#999999;dashed=1;html=1;" parent="1" source="st_notconn" target="st_glitch" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" value="kept" style="strokeColor=#999999;dashed=1;edgeStyle=orthogonalEdgeStyle;exitX=0.5;exitY=1;entryX=1;entryY=0.5;" parent="1" source="st_glitch" target="st_connected" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1080" y="670" />
+              <mxPoint x="480" y="670" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" value="mytsagent recheck:&lt;br&gt;unreachable" style="strokeColor=#b85450;html=1;" parent="1" source="st_notconn" target="st_confirmedstale" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e13" value="lappend delete" style="strokeColor=#b85450;" parent="1" source="st_confirmedstale" target="st_deleteissued" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e14" value="delete succeeds; commit&lt;br&gt;(+ commit-all if modified&amp;gt;0)" style="strokeColor=#b85450;html=1;" parent="1" source="st_deleteissued" target="st_purged" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e15" value="PAN-OS: &quot;Object&lt;br&gt;doesn&amp;#39;t exist&quot;" style="strokeColor=#d79b00;html=1;" parent="1" source="st_deleteissued" target="st_absent" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e16" value="skipped_deletes++; batch still&lt;br&gt;commits if modified&amp;gt;0 overall" style="strokeColor=#d79b00;dashed=1;edgeStyle=orthogonalEdgeStyle;html=1;" parent="1" source="st_absent" target="st_purged" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1090" y="960" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e17" value="may be rediscovered&lt;br&gt;on a later cycle" style="strokeColor=#999999;dashed=1;edgeStyle=orthogonalEdgeStyle;exitX=0;exitY=0.5;entryX=0;entryY=0.5;html=1;" parent="1" source="st_purged" target="st_unseen" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="60" y="925" />
+              <mxPoint x="60" y="115" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="985" width="1270" height="140" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;fontSize=12;align=left;" parent="1" vertex="1">
+          <mxGeometry x="60" y="993" width="100" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" value="Discover-phase state" style="rounded=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="60" y="1020" width="150" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" value="Healthy / running" style="rounded=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="230" y="1020" width="150" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" value="Purge trigger / not-conn" style="rounded=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="400" y="1020" width="150" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg4" value="Deletion path" style="rounded=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="570" y="1020" width="150" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg5" value="Purged" style="rounded=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="740" y="1020" width="150" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg6" value="Documented caveat / drift" style="rounded=1;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="910" y="1020" width="180" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="leg7" value="No-op / kept" style="rounded=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1110" y="1020" width="150" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_footnote" value="&lt;b&gt;Config drift caveat (amber):&lt;/b&gt; discover.tcl&amp;#39;s &amp;quot;already configured&amp;quot; check reads the &lt;i&gt;candidate&lt;/i&gt; config, not committed/running -- an agent stuck in candidate after a failed commit is reported as already configured forever and never retried. &lt;b&gt;Already-absent caveat (amber):&lt;/b&gt; purge tolerates deleting an object already gone from config (drift between firewall and Panorama template) rather than aborting the batch. Both are documented in TROUBLESHOOTING.md.  See myexpect-error-tree.drawio for the exact CLI-response handling and DEVELOPMENT.md for the test coverage of the not-conn/recheck/delete decision logic below." style="text;html=1;fontSize=9;align=left;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="60" y="1055" width="1230" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

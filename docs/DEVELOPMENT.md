@@ -33,6 +33,10 @@ This suite uses `expect` (not `tclsh`) since `myexpect.exp` drives the real `exp
 
 **Not covered by the automated suite:** `tsagent-modify-panorama.exp`/`tsagent-modify-firewall.exp` themselves (the commit-skip-when-nothing-modified logic in each, which computes `modified` from `[llength $input] - skipped_deletes` and skips `commit`/`commit-all` when it's `0`) require a real or SSH-mocked PAN-OS session end to end via `ssh-init.exp`, which this environment's sandbox doesn't allow spawning fake binaries for. That arithmetic was verified in isolation (present/missing/mixed/add/empty-input cases) and the files were checked for brace/quote balance across their full length, but there is no automated regression test exercising the actual commit-vs-skip branch inside those two scripts.
 
+The full control flow being tested below, for both scripts:
+
+[![discover.tcl and purge.tcl function flow](function-flow.png)](function-flow.drawio)
+
 **discover.tcl logic**
 - Panorama config pattern matching (DNS and IP modes)
 - Firewall-mode config pattern matching (DNS and IP modes, multi-agent)

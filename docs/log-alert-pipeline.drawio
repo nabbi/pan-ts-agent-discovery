@@ -1,0 +1,136 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
+  <diagram id="logpipeline" name="Log and Alert Pipeline">
+    <mxGraphModel dx="866" dy="459" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1850" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Log &amp;amp; Alert Pipeline &amp;mdash; log() &amp;rarr; syslog &amp;rarr; Splunk" style="text;html=1;fontSize=18;fontStyle=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="600" y="15" width="700" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="sources_title" value="&lt;b&gt;Call sites&lt;/b&gt;" style="text;html=1;fontSize=12;align=left;" parent="1" vertex="1">
+          <mxGeometry x="40" y="55" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="discover.tcl: suspicious PTR&lt;br&gt;rejected (regex fail)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="80" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s2" value="purge.tcl: malformed&lt;br&gt;not-conn line (parse error)" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="150" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3" value="discover.tcl: mytsagent&lt;br&gt;TLS probe error (non-1 exit)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="220" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s4" value="discover.tcl: mydig failure&lt;br&gt;(fatal, exit 1)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="290" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s5" value="discover.tcl: myfping fatal&lt;br&gt;(exit 2+, fatal)" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="360" width="300" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s6" value="myexec: any .exp child exits&lt;br&gt;non-zero (SSH fail, timeout, unknown&lt;br&gt;cmd, HA sync, capacity, unrecognized&lt;br&gt;&amp;mdash; via send_user, captured in $results)" style="rounded=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="430" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s7" value="myexec: child exits 0&lt;br&gt;(routine success &amp;mdash; info level, not alerted)" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="520" width="300" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="log_proc" value="&lt;b&gt;log(level, msg)&lt;/b&gt;&lt;br&gt;src/inc/common-proc.tcl&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;1. regsub CR/LF/CRLF &amp;rarr; &amp;quot; :: &amp;quot;&lt;br&gt;(prevents log-forging, CWE-117)&lt;br&gt;2. truncate body to 200 chars&lt;br&gt;3. catch { exec logger -p&lt;br&gt;user.$level &amp;quot;[info script] $msg&amp;quot; }&lt;/font&gt;" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" parent="1" vertex="1">
+          <mxGeometry x="440" y="260" width="260" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="d_logger" value="logger(1) exec&lt;br&gt;succeeded?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="780" y="325" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t_fallback" value="puts to stdout&lt;br&gt;(cron file log only --&lt;br&gt;TROUBLESHOOTING.md&lt;br&gt;&quot;Logger unavailable&quot;)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="760" y="450" width="220" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="t_syslog" value="syslog&lt;br&gt;(user.info / user.error)" style="shape=mxgraph.cisco.servers.file_server;sketch=0;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="305" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="t_splunk" value="Splunk&lt;br&gt;index=paloalto&lt;br&gt;sourcetype=syslog" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="305" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="splunk_note" value="info-level / non-matching content:&lt;br&gt;visible in Splunk but not alerted" style="text;html=1;fontSize=9;fontColor=#999999;align=center;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="380" width="180" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="alerts_title" value="&lt;b&gt;Alert catalog (SPLUNK_ALERTS.md)&lt;/b&gt;" style="text;html=1;fontSize=12;align=left;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="55" width="300" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" value="&lt;b&gt;#1&lt;/b&gt; Suspicious PTR rejected&lt;br&gt;(security-relevant)" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="85" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="&lt;b&gt;#2&lt;/b&gt; Malformed not-conn line&lt;br&gt;(alert on repeats of same line)" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="150" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" value="&lt;b&gt;#3&lt;/b&gt; TS Agent TLS probe error&lt;br&gt;(alert on volume &amp;gt; 5, not any hit)" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="215" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" value="&lt;b&gt;#4&lt;/b&gt; Reverse DNS lookup failed&lt;br&gt;(fatal -- alert on any occurrence)" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="280" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" value="&lt;b&gt;#5&lt;/b&gt; fping fatal error&lt;br&gt;(fatal -- alert on any occurrence)" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="345" width="300" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="a6" value="&lt;b&gt;#6&lt;/b&gt; .exp sub-script failure&lt;br&gt;(needs severity=error filter --&lt;br&gt;not distinguishable by content alone)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="410" width="300" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s1" style="strokeColor=#6c8ebf;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s1" target="log_proc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s2" style="strokeColor=#b85450;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s2" target="log_proc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s3" style="strokeColor=#6c8ebf;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s3" target="log_proc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s4" style="strokeColor=#6c8ebf;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s4" target="log_proc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s5" style="strokeColor=#6c8ebf;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s5" target="log_proc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s6" style="strokeColor=#9673a6;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s6" target="log_proc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s7" style="strokeColor=#999999;dashed=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s7" target="log_proc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_logger" style="strokeColor=#666666;" parent="1" source="log_proc" target="d_logger" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_logger_yes" value="yes" style="strokeColor=#82b366;" parent="1" source="d_logger" target="t_syslog" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_logger_no" value="no (missing binary,&lt;br&gt;/dev/log down, ...)" style="strokeColor=#d79b00;html=1;" parent="1" source="d_logger" target="t_fallback" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_splunk" style="strokeColor=#9673a6;" parent="1" source="t_syslog" target="t_splunk" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_a1" style="strokeColor=#999999;dashed=1;" parent="1" source="t_splunk" target="a1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_a2" style="strokeColor=#999999;dashed=1;" parent="1" source="t_splunk" target="a2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_a3" style="strokeColor=#999999;dashed=1;" parent="1" source="t_splunk" target="a3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_a4" style="strokeColor=#999999;dashed=1;" parent="1" source="t_splunk" target="a4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_a5" style="strokeColor=#999999;dashed=1;" parent="1" source="t_splunk" target="a5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_a6" style="strokeColor=#999999;dashed=1;" parent="1" source="t_splunk" target="a6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="600" width="1780" height="230" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_title" value="&lt;b&gt;Notes&lt;/b&gt;" style="text;html=1;fontSize=12;align=left;" parent="1" vertex="1">
+          <mxGeometry x="60" y="608" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_text" value="Both scripts append their stdout to /var/log/paloalto/pan-tsagent-{discover,purge}.log via cron redirect -- that file log is the primary record and is never lost, even when the logger call itself fails (see the amber fallback path above). Syslog/Splunk is the secondary, alertable sink.&lt;br&gt;&lt;br&gt;None of alerts #1-#5 filter on user.error vs user.info priority by content alone -- they key off the distinct message *shape* each source logs (see SPLUNK_ALERTS.md #1-#5 for the exact rex/regex used to tell them apart, e.g. #3&amp;#39;s two-token &amp;lt;host&amp;gt; &amp;lt;status&amp;gt; vs #5&amp;#39;s three-or-more-token shape). &lt;b&gt;Alert #6 is the exception&lt;/b&gt;: it captures whatever myexec logs for a failed .exp child (SSH failure, timeout, unknown command, HA sync warning, platform capacity exceeded, or an unrecognized PAN-OS error -- see myexpect-error-tree.drawio for that full decision tree) and is *not* distinguishable from a routine successful run by content alone, so it needs a severity=error (or your syslog TA&amp;#39;s equivalent) field filter to avoid false positives -- treat it as a tuning starting point, not a page-on-sight alert, per SPLUNK_ALERTS.md &amp;quot;#6&amp;quot;.&lt;br&gt;&lt;br&gt;The alert.suppress.fields=ip pattern in SPLUNK_ALERTS.md&amp;#39;s example savedsearches.conf means one misbehaving host pages once per hour, not once per discovery cycle, while it remains unresolved." style="text;html=1;fontSize=10;align=left;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="60" y="630" width="1740" height="185" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
