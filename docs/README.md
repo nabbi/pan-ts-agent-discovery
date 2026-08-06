@@ -12,7 +12,7 @@ One page per file (split out for easier standalone viewing/diffing). Click a dia
 
 ### [architecture.drawio](architecture.drawio)
 
-System topology -- Citrix/DNS/Panorama/Firewall/syslog, discover.tcl and purge.tcl at a glance, Panorama-vs-firewall-direct mode.
+System topology -- Citrix/DNS/Panorama/Firewall/syslog, discover.tcl and purge.tcl at a glance.
 
 [![Architecture diagram](architecture.png)](architecture.drawio)
 

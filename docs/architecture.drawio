@@ -1,225 +1,172 @@
-<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.6.6 Chrome/144.0.7559.236 Electron/40.8.4 Safari/537.36" version="29.6.6">
   <diagram id="arch" name="Architecture">
-    <mxGraphModel dx="866" dy="459" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+    <mxGraphModel dx="1747" dy="1486" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="title" value="PAN TS Agent Discovery &amp;mdash; Architecture" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" parent="1" vertex="1">
-          <mxGeometry x="500" y="20" width="600" height="40" as="geometry" />
+        <mxCell id="title" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" value="PAN TS Agent Discovery &amp;mdash; Architecture" vertex="1">
+          <mxGeometry height="40" width="600" x="500" y="20" as="geometry" />
         </mxCell>
-        <mxCell id="citrix" value="&lt;b&gt;Citrix XenApp Servers&lt;/b&gt;&lt;br&gt;TS Agent :5009 (TLS)" style="shape=mxgraph.cisco.servers.standard_server;sketch=0;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=0;fontSize=11;html=1;" parent="1" vertex="1">
-          <mxGeometry x="80" y="200" width="140" height="100" as="geometry" />
+        <mxCell id="citrix" parent="1" style="shape=mxgraph.cisco.servers.standard_server;sketch=0;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=0;fontSize=11;html=1;" value="&lt;b&gt;Citrix XenApp Servers&lt;/b&gt;&lt;br&gt;TS Agent :5009 (TLS)" vertex="1">
+          <mxGeometry height="100" width="140" x="670" y="460" as="geometry" />
         </mxCell>
-        <mxCell id="dns" value="&lt;b&gt;DNS Server&lt;/b&gt;&lt;br&gt;PTR / A records" style="shape=mxgraph.cisco.servers.directory_server;sketch=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;html=1;" parent="1" vertex="1">
-          <mxGeometry x="80" y="380" width="140" height="90" as="geometry" />
+        <mxCell id="dns" parent="1" style="shape=mxgraph.cisco.servers.directory_server;sketch=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;html=1;" value="&lt;b&gt;DNS Server&lt;/b&gt;&lt;br&gt;PTR / A records" vertex="1">
+          <mxGeometry height="90" width="140" x="205" y="540" as="geometry" />
         </mxCell>
-        <mxCell id="syslog" value="&lt;b&gt;Syslog&lt;/b&gt;&lt;br&gt;logger(1)" style="shape=mxgraph.cisco.servers.file_server;sketch=0;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;html=1;" parent="1" vertex="1">
-          <mxGeometry x="80" y="540" width="140" height="80" as="geometry" />
+        <mxCell id="syslog" parent="1" style="shape=mxgraph.cisco.servers.file_server;sketch=0;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;html=1;" value="&lt;b&gt;Syslog&lt;/b&gt;&lt;br&gt;logger(1)" vertex="1">
+          <mxGeometry height="80" width="140" x="100" y="740" as="geometry" />
         </mxCell>
-        <mxCell id="panorama" value="&lt;b&gt;Palo Alto Panorama&lt;/b&gt;&lt;br&gt;SSH / Expect&lt;br&gt;TS Agent config&lt;br&gt;&lt;i&gt;optional: config(panorama)=disable to skip&lt;/i&gt;" style="shape=mxgraph.cisco.security.firewall;sketch=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1340" y="200" width="160" height="120" as="geometry" />
+        <mxCell id="panorama" parent="1" style="shape=mxgraph.cisco.security.firewall;sketch=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;html=1;" value="&lt;b&gt;Palo Alto Panorama&lt;/b&gt;&lt;br&gt;SSH / Expect&lt;br&gt;TS Agent config" vertex="1">
+          <mxGeometry height="100" width="160" x="720" y="320" as="geometry" />
         </mxCell>
-        <mxCell id="firewall" value="&lt;b&gt;PAN Firewall&lt;/b&gt;&lt;br&gt;SSH / Expect&lt;br&gt;TS Agent statistics&lt;br&gt;+ TS Agent config (if Panorama disabled)" style="shape=mxgraph.cisco.security.firewall;sketch=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1340" y="380" width="160" height="110" as="geometry" />
+        <mxCell id="firewall" parent="1" style="shape=mxgraph.cisco.security.firewall;sketch=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;html=1;" value="&lt;b&gt;PAN Firewall&lt;/b&gt;&lt;br&gt;SSH / Expect&lt;br&gt;TS Agent statistics" vertex="1">
+          <mxGeometry height="100" width="160" x="785" y="192.5" as="geometry" />
         </mxCell>
-        <mxCell id="cron" value="&lt;b&gt;cron&lt;/b&gt;&lt;br&gt;hourly / daily" style="shape=mxgraph.flowchart.delay;sketch=0;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=11;html=1;" parent="1" vertex="1">
-          <mxGeometry x="700" y="80" width="120" height="50" as="geometry" />
+        <mxCell id="cron" parent="1" style="shape=mxgraph.flowchart.delay;sketch=0;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;fontSize=11;html=1;" value="&lt;b&gt;cron&lt;/b&gt;&lt;br&gt;hourly / daily" vertex="1">
+          <mxGeometry height="50" width="120" x="700" y="80" as="geometry" />
         </mxCell>
-        <mxCell id="discover_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="360" y="160" width="380" height="310" as="geometry" />
+        <mxCell id="discover_box" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;strokeWidth=2;dashed=1;" value="" vertex="1">
+          <mxGeometry height="310" width="380" x="180" y="160" as="geometry" />
         </mxCell>
-        <mxCell id="discover_title" value="&lt;b&gt;discover.tcl&lt;/b&gt;&lt;br&gt;&lt;i&gt;hourly via cron&lt;/i&gt;" style="text;html=1;fontSize=14;align=center;" parent="1" vertex="1">
-          <mxGeometry x="460" y="165" width="180" height="40" as="geometry" />
+        <mxCell id="discover_title" parent="1" style="text;html=1;fontSize=14;align=center;" value="&lt;b&gt;discover.tcl&lt;/b&gt;&lt;br&gt;&lt;i&gt;hourly via cron&lt;/i&gt;" vertex="1">
+          <mxGeometry height="40" width="180" x="280" y="165" as="geometry" />
         </mxCell>
-        <mxCell id="d_fping" value="&lt;b&gt;myfping&lt;/b&gt;&lt;br&gt;ICMP sweep&lt;br&gt;config(networks)" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
-          <mxGeometry x="380" y="215" width="150" height="55" as="geometry" />
+        <mxCell id="d_fping" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" value="&lt;b&gt;myfping&lt;/b&gt;&lt;br&gt;ICMP sweep&lt;br&gt;config(networks)" vertex="1">
+          <mxGeometry height="55" width="150" x="200" y="215" as="geometry" />
         </mxCell>
-        <mxCell id="d_tsagent" value="&lt;b&gt;mytsagent&lt;/b&gt;&lt;br&gt;openssl TLS :5009&lt;br&gt;verify TS Agent cert" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
-          <mxGeometry x="380" y="285" width="150" height="55" as="geometry" />
+        <mxCell id="d_tsagent" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" value="&lt;b&gt;mytsagent&lt;/b&gt;&lt;br&gt;openssl TLS :5009&lt;br&gt;verify TS Agent cert" vertex="1">
+          <mxGeometry height="55" width="150" x="200" y="285" as="geometry" />
         </mxCell>
-        <mxCell id="d_dig" value="&lt;b&gt;mydig&lt;/b&gt;&lt;br&gt;reverse DNS PTR&lt;br&gt;validate hostname charset" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
-          <mxGeometry x="380" y="355" width="150" height="55" as="geometry" />
+        <mxCell id="d_dig" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" value="&lt;b&gt;mydig&lt;/b&gt;&lt;br&gt;reverse DNS PTR&lt;br&gt;hostname lookup" vertex="1">
+          <mxGeometry height="55" width="150" x="200" y="355" as="geometry" />
         </mxCell>
-        <mxCell id="d_check" value="&lt;b&gt;check existing&lt;/b&gt;&lt;br&gt;tsagent-configured.exp&lt;br&gt;skip existing agents" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
-          <mxGeometry x="560" y="215" width="160" height="55" as="geometry" />
+        <mxCell id="d_check" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" value="&lt;b&gt;check Panorama&lt;/b&gt;&lt;br&gt;tsagent-configured.exp&lt;br&gt;skip existing agents" vertex="1">
+          <mxGeometry height="55" width="160" x="380" y="285" as="geometry" />
         </mxCell>
-        <mxCell id="d_add" value="&lt;b&gt;add new agents&lt;/b&gt;&lt;br&gt;tsagent-modify-*.exp add&lt;br&gt;commit (+all if Panorama)" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" parent="1" vertex="1">
-          <mxGeometry x="560" y="285" width="160" height="55" as="geometry" />
+        <mxCell id="d_add" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#6c8ebf;fontSize=10;html=1;" value="&lt;b&gt;add new agents&lt;/b&gt;&lt;br&gt;tsagent-modify.exp add&lt;br&gt;commit &amp;amp; push stacks" vertex="1">
+          <mxGeometry height="55" width="160" x="380" y="355" as="geometry" />
         </mxCell>
-        <mxCell id="purge_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="810" y="160" width="380" height="310" as="geometry" />
+        <mxCell id="purge_box" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;strokeWidth=2;dashed=1;" value="" vertex="1">
+          <mxGeometry height="310" width="270" x="1100" y="160" as="geometry" />
         </mxCell>
-        <mxCell id="purge_title" value="&lt;b&gt;purge.tcl&lt;/b&gt;&lt;br&gt;&lt;i&gt;daily via cron&lt;/i&gt;" style="text;html=1;fontSize=14;align=center;" parent="1" vertex="1">
-          <mxGeometry x="920" y="165" width="160" height="40" as="geometry" />
+        <mxCell id="purge_title" parent="1" style="text;html=1;fontSize=14;align=center;" value="&lt;b&gt;purge.tcl&lt;/b&gt;&lt;br&gt;&lt;i&gt;daily via cron&lt;/i&gt;" vertex="1">
+          <mxGeometry height="40" width="160" x="1140" y="165" as="geometry" />
         </mxCell>
-        <mxCell id="p_notconn" value="&lt;b&gt;fetch not-connected&lt;/b&gt;&lt;br&gt;tsagent-not-connected.exp&lt;br&gt;show user ts-agent statistics" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
-          <mxGeometry x="840" y="215" width="180" height="55" as="geometry" />
+        <mxCell id="p_notconn" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=10;html=1;" value="&lt;b&gt;fetch not-connected&lt;/b&gt;&lt;br&gt;tsagent-not-connected.exp&lt;br&gt;show user ts-agent statistics" vertex="1">
+          <mxGeometry height="55" width="180" x="1130" y="215" as="geometry" />
         </mxCell>
-        <mxCell id="p_verify" value="&lt;b&gt;mytsagent&lt;/b&gt;&lt;br&gt;openssl TLS :5009&lt;br&gt;confirm unreachable" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
-          <mxGeometry x="840" y="285" width="180" height="55" as="geometry" />
+        <mxCell id="p_verify" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=10;html=1;" value="&lt;b&gt;mytsagent&lt;/b&gt;&lt;br&gt;openssl TLS :5009&lt;br&gt;confirm unreachable" vertex="1">
+          <mxGeometry height="55" width="180" x="1130" y="285" as="geometry" />
         </mxCell>
-        <mxCell id="p_delete" value="&lt;b&gt;delete stale agents&lt;/b&gt;&lt;br&gt;tsagent-modify-*.exp delete&lt;br&gt;commit (+all if Panorama)" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
-          <mxGeometry x="840" y="355" width="180" height="55" as="geometry" />
+        <mxCell id="p_delete" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#b85450;fontSize=10;html=1;" value="&lt;b&gt;delete stale agents&lt;/b&gt;&lt;br&gt;tsagent-modify.exp delete&lt;br&gt;commit &amp;amp; push stacks" vertex="1">
+          <mxGeometry height="55" width="180" x="1130" y="355" as="geometry" />
         </mxCell>
-        <mxCell id="shared_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="360" y="510" width="830" height="190" as="geometry" />
+        <mxCell id="shared_box" parent="1" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;strokeWidth=2;dashed=1;" value="" vertex="1">
+          <mxGeometry height="160" width="830" x="360" y="690" as="geometry" />
         </mxCell>
-        <mxCell id="shared_title" value="&lt;b&gt;Shared Libraries&lt;/b&gt;" style="text;html=1;fontSize=14;align=center;" parent="1" vertex="1">
-          <mxGeometry x="690" y="515" width="170" height="30" as="geometry" />
+        <mxCell id="shared_title" parent="1" style="text;html=1;fontSize=14;align=center;" value="&lt;b&gt;Shared Libraries&lt;/b&gt;" vertex="1">
+          <mxGeometry height="30" width="170" x="690" y="695" as="geometry" />
         </mxCell>
-        <mxCell id="common_proc" value="&lt;b&gt;inc/common-proc.tcl&lt;/b&gt;&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;log() &amp;bull; myexec()&lt;br&gt;myfping() &amp;bull; mytsagent()&lt;br&gt;mydig()&lt;br&gt;&lt;i&gt;log(): CR/LF-safe, logger-&amp;gt;stdout fallback&lt;/i&gt;&lt;/font&gt;" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" parent="1" vertex="1">
-          <mxGeometry x="380" y="550" width="170" height="140" as="geometry" />
+        <mxCell id="common_proc" parent="1" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" value="&lt;b&gt;inc/common-proc.tcl&lt;/b&gt;&lt;br&gt;&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;log() &amp;bull; myexec()&lt;br&gt;myfping() &amp;bull; mytsagent()&lt;br&gt;mydig()&lt;/font&gt;" vertex="1">
+          <mxGeometry height="100" width="170" x="380" y="730" as="geometry" />
         </mxCell>
-        <mxCell id="config" value="&lt;b&gt;inc/config.tcl&lt;/b&gt;&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;networks &amp;bull; panorama&lt;br&gt;firewall &amp;bull; dns&lt;br&gt;template &amp;bull; vsys&lt;br&gt;credentials &amp;bull; stacks&lt;br&gt;&lt;i&gt;panorama=disable -&amp;gt; firewall-direct mode&lt;/i&gt;&lt;/font&gt;" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" parent="1" vertex="1">
-          <mxGeometry x="580" y="550" width="170" height="140" as="geometry" />
+        <mxCell id="config" parent="1" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" value="&lt;b&gt;inc/config.tcl&lt;/b&gt;&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;networks &amp;bull; panorama&lt;br&gt;firewall &amp;bull; dns&lt;br&gt;template &amp;bull; vsys&lt;br&gt;credentials &amp;bull; stacks&lt;/font&gt;" vertex="1">
+          <mxGeometry height="100" width="170" x="580" y="730" as="geometry" />
         </mxCell>
-        <mxCell id="myexpect" value="&lt;b&gt;exp/myexpect.exp&lt;/b&gt;&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;myexpect()&lt;br&gt;PAN CLI error handling&lt;br&gt;timeout / unknown cmd&lt;br&gt;&lt;i&gt;skip already-absent deletes&lt;/i&gt;&lt;/font&gt;" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" parent="1" vertex="1">
-          <mxGeometry x="780" y="550" width="170" height="140" as="geometry" />
+        <mxCell id="myexpect" parent="1" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" value="&lt;b&gt;exp/myexpect.exp&lt;/b&gt;&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;myexpect()&lt;br&gt;PAN CLI error handling&lt;br&gt;timeout / unknown cmd&lt;/font&gt;" vertex="1">
+          <mxGeometry height="100" width="170" x="780" y="730" as="geometry" />
         </mxCell>
-        <mxCell id="sshinit" value="&lt;b&gt;exp/ssh-init.exp&lt;/b&gt;&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;SSH spawn &amp;amp; login&lt;br&gt;set cli pager off&lt;br&gt;set cli scripting-mode on&lt;/font&gt;" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" parent="1" vertex="1">
-          <mxGeometry x="980" y="550" width="190" height="140" as="geometry" />
+        <mxCell id="sshinit" parent="1" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" value="&lt;b&gt;exp/ssh-init.exp&lt;/b&gt;&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;SSH spawn &amp;amp; login&lt;br&gt;set cli pager off&lt;br&gt;set cli scripting-mode on&lt;/font&gt;" vertex="1">
+          <mxGeometry height="100" width="190" x="980" y="730" as="geometry" />
         </mxCell>
-        <mxCell id="e_cron_d" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;" parent="1" source="cron" target="discover_box" edge="1">
+        <mxCell id="e_cron_d" edge="1" parent="1" source="cron" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;" target="discover_box">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="580" y="130" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_cron_p" edge="1" parent="1" source="cron" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;entryX=0.466;entryY=-0.01;entryDx=0;entryDy=0;entryPerimeter=0;" target="purge_box">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_cron_p" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeWidth=2;" parent="1" source="cron" target="purge_box" edge="1">
+        <mxCell id="e_fping_citrix" edge="1" parent="1" source="d_fping" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#82b366;entryX=0;entryY=0.3;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="citrix" value="fping -a -g">
+          <mxGeometry relative="1" x="0.7181" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="370" y="242" />
+              <mxPoint x="370" y="490" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_tsagent_citrix" edge="1" parent="1" source="d_tsagent" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#82b366;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="citrix" value="openssl :5009">
+          <mxGeometry relative="1" x="0.7295" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="360" y="312" />
+              <mxPoint x="360" y="510" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_dig_dns" edge="1" parent="1" source="d_dig" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#d6b656;" target="dns" value="dig PTR">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_fping_citrix" value="fping -a -g" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#82b366;entryX=0.998;entryY=0.177;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="d_fping" target="citrix" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="300" y="220" />
-              <mxPoint x="300" y="218" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e_tsagent_citrix" value="openssl :5009" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#82b366;entryX=1.018;entryY=0.615;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0.001;exitY=0.178;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="d_tsagent" target="citrix" edge="1">
-          <mxGeometry x="0.3978" relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="380" y="290" />
-              <mxPoint x="300" y="290" />
-              <mxPoint x="300" y="262" />
-            </Array>
+        <mxCell id="e_check_pan" edge="1" parent="1" source="d_check" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#6c8ebf;entryX=0;entryY=0.4;entryDx=0;entryDy=0;entryPerimeter=0;" target="panorama" value="SSH show config">
+          <mxGeometry relative="1" x="-0.2089" y="2" as="geometry">
             <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="700" y="312" />
+              <mxPoint x="700" y="360" />
+            </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_dig_dns" value="dig PTR" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#d6b656;" parent="1" source="d_dig" target="dns" edge="1">
+        <mxCell id="e_add_pan" edge="1" parent="1" source="d_add" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#6c8ebf;entryX=0.003;entryY=0.776;entryDx=0;entryDy=0;entryPerimeter=0;" target="panorama" value="SSH set/commit">
+          <mxGeometry relative="1" x="-0.0797" y="2" as="geometry">
+            <mxPoint as="offset" />
+            <Array as="points">
+              <mxPoint x="690" y="382" />
+              <mxPoint x="690" y="398" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_notconn_fw" edge="1" parent="1" source="p_notconn" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#b85450;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="firewall" value="SSH show stats">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_check_pan" value="SSH show config" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#6c8ebf;entryX=0.013;entryY=0.277;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="d_check" target="panorama" edge="1">
-          <mxGeometry x="0.8064" y="8" relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="640" y="200" />
-              <mxPoint x="1030" y="200" />
-              <mxPoint x="1030" y="228" />
-            </Array>
+        <mxCell id="e_verify_citrix" edge="1" parent="1" source="p_verify" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#82b366;exitX=0;exitY=0.5;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="citrix" value="openssl :5009">
+          <mxGeometry relative="1" x="0.6908" as="geometry">
             <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e_add_pan" value="SSH set/commit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#6c8ebf;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="d_add" target="panorama" edge="1">
-          <mxGeometry x="0.8542" relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="640" y="430" />
-              <mxPoint x="1070" y="430" />
-              <mxPoint x="1070" y="250" />
-            </Array>
-            <mxPoint as="offset" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e_notconn_fw" value="SSH show stats" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#b85450;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.1;entryDx=0;entryDy=0;" parent="1" source="p_notconn" target="firewall" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1260" y="391" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e_check_fw" value="SSH show config (panorama=disable)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#d79b00;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.32;entryDx=0;entryDy=0;" parent="1" source="d_check" target="firewall" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1260" y="415" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e_add_fw" value="SSH set/commit (panorama=disable)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#d79b00;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.55;entryDx=0;entryDy=0;" parent="1" source="d_add" target="firewall" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1260" y="440" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="e_verify_citrix" value="openssl :5009" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#82b366;exitX=0;exitY=0.5;entryX=0.944;entryY=1.005;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="p_verify" target="citrix" edge="1">
-          <mxGeometry x="0.8445" y="3" relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="790" y="313" />
-              <mxPoint x="790" y="450" />
-              <mxPoint x="340" y="450" />
-              <mxPoint x="340" y="300" />
-              <mxPoint x="220" y="300" />
+              <mxPoint x="1070" y="312" />
+              <mxPoint x="1070" y="510" />
             </Array>
             <mxPoint x="220" y="290" as="targetPoint" />
-            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_delete_pan" value="SSH delete/commit" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#6c8ebf;entryX=0;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="p_delete" target="panorama" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e_delete_fw" value="SSH delete/commit (panorama=disable)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#d79b00;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.78;entryDx=0;entryDy=0;" parent="1" source="p_delete" target="firewall" edge="1">
+        <mxCell id="e_delete_pan" edge="1" parent="1" source="p_delete" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#6c8ebf;entryX=1.021;entryY=0.655;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" target="panorama" value="SSH delete/commit">
           <mxGeometry relative="1" as="geometry">
-            <Array as="points">
-              <mxPoint x="1260" y="466" />
-            </Array>
+            <mxPoint x="1340" y="280" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="e_d_common" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#666666;dashed=1;dashPattern=3 3;" parent="1" source="discover_box" target="shared_box" edge="1">
+        <mxCell id="e_d_common" edge="1" parent="1" source="discover_box" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#666666;dashed=1;dashPattern=3 3;exitX=0.425;exitY=1.01;exitDx=0;exitDy=0;exitPerimeter=0;" target="shared_box">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_p_common" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#666666;dashed=1;dashPattern=3 3;" parent="1" source="purge_box" target="shared_box" edge="1">
+        <mxCell id="e_p_common" edge="1" parent="1" source="purge_box" style="edgeStyle=orthogonalEdgeStyle;rounded=1;strokeColor=#666666;dashed=1;dashPattern=3 3;" target="shared_box">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_log_syslog" value="log()" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#9673a6;" parent="1" source="common_proc" target="syslog" edge="1">
+        <mxCell id="e_log_syslog" edge="1" parent="1" source="common_proc" style="edgeStyle=orthogonalEdgeStyle;rounded=1;dashed=1;strokeColor=#9673a6;" target="syslog" value="log()">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_d1" style="strokeWidth=1;strokeColor=#6c8ebf;" parent="1" source="d_fping" target="d_tsagent" edge="1">
+        <mxCell id="e_d1" edge="1" parent="1" source="d_fping" style="strokeWidth=1;strokeColor=#6c8ebf;" target="d_tsagent">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_d2" style="strokeWidth=1;strokeColor=#6c8ebf;" parent="1" source="d_tsagent" target="d_dig" edge="1">
+        <mxCell id="e_d2" edge="1" parent="1" source="d_tsagent" style="strokeWidth=1;strokeColor=#6c8ebf;" target="d_dig">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_d3" style="strokeWidth=1;strokeColor=#6c8ebf;" parent="1" source="d_check" target="d_add" edge="1">
+        <mxCell id="e_d3" edge="1" parent="1" source="d_check" style="strokeWidth=1;strokeColor=#6c8ebf;" target="d_add">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_p1" style="strokeWidth=1;strokeColor=#b85450;" parent="1" source="p_notconn" target="p_verify" edge="1">
+        <mxCell id="e_p1" edge="1" parent="1" source="p_notconn" style="strokeWidth=1;strokeColor=#b85450;" target="p_verify">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e_p2" style="strokeWidth=1;strokeColor=#b85450;" parent="1" source="p_verify" target="p_delete" edge="1">
+        <mxCell id="e_p2" edge="1" parent="1" source="p_verify" style="strokeWidth=1;strokeColor=#b85450;" target="p_delete">
           <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_legend_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="80" y="720" width="1420" height="150" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_legend_title" value="&lt;b&gt;Legend&lt;/b&gt;" style="text;html=1;fontSize=12;align=left;" parent="1" vertex="1">
-          <mxGeometry x="100" y="728" width="200" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_leg1" value="&lt;font color=&quot;#6c8ebf&quot;&gt;&amp;bull;&lt;/font&gt; Panorama-mode SSH / commit (default)" style="text;html=1;fontSize=10;align=left;" parent="1" vertex="1">
-          <mxGeometry x="100" y="758" width="460" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_leg2" value="&lt;font color=&quot;#d79b00&quot;&gt;&amp;bull;&lt;/font&gt; Firewall-direct mode (config(panorama)=disable)" style="text;html=1;fontSize=10;align=left;" parent="1" vertex="1">
-          <mxGeometry x="600" y="758" width="460" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_leg3" value="&lt;font color=&quot;#82b366&quot;&gt;&amp;bull;&lt;/font&gt; TS Agent verify (fping / openssl :5009)" style="text;html=1;fontSize=10;align=left;" parent="1" vertex="1">
-          <mxGeometry x="1100" y="758" width="380" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_leg4" value="&lt;font color=&quot;#d6b656&quot;&gt;&amp;bull;&lt;/font&gt; DNS PTR lookup" style="text;html=1;fontSize=10;align=left;" parent="1" vertex="1">
-          <mxGeometry x="100" y="788" width="460" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_leg5" value="&lt;font color=&quot;#b85450&quot;&gt;&amp;bull;&lt;/font&gt; Purge / stale-agent flow" style="text;html=1;fontSize=10;align=left;" parent="1" vertex="1">
-          <mxGeometry x="600" y="788" width="460" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_leg6" value="&lt;font color=&quot;#9673a6&quot;&gt;&amp;bull;&lt;/font&gt; Syslog output (log())" style="text;html=1;fontSize=10;align=left;" parent="1" vertex="1">
-          <mxGeometry x="1100" y="788" width="380" height="20" as="geometry" />
-        </mxCell>
-        <mxCell id="arch_leg_footnote" value="&lt;i&gt;commit-all to template-stacks runs only when config(panorama) is not &quot;disable&quot;; tsagent-modify-panorama.exp or tsagent-modify-firewall.exp is selected accordingly. myexpect.exp tolerates a delete target that is already absent (config drift) instead of aborting the run.&lt;/i&gt;" style="text;html=1;fontSize=10;align=left;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="100" y="818" width="1380" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
