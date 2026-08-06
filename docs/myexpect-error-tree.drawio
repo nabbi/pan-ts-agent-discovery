@@ -1,0 +1,132 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
+  <diagram id="myexpect" name="myexpect.exp Error Handling">
+    <mxGraphModel dx="866" dy="459" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="myexpect() &amp;mdash; PAN-OS CLI Error Handling (exp/myexpect.exp)" style="text;html=1;fontSize=18;fontStyle=1;align=center;" parent="1" vertex="1">
+          <mxGeometry x="150" y="15" width="800" height="35" as="geometry" />
+        </mxCell>
+        <mxCell id="start" value="&lt;b&gt;myexpect(p)&lt;/b&gt; called&lt;br&gt;expect{} watches the SSH buffer for these patterns" style="rounded=1;whiteSpace=wrap;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="70" width="260" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="chk1" value="timeout&lt;br&gt;(45s idle)?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="150" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="chk2" value="contains&lt;br&gt;&quot;Unknown command&quot;?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="235" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="chk3" value="contains&lt;br&gt;&quot;Object doesn&amp;#39;t exist&quot;?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="320" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="chk4" value="contains HA-sync&lt;br&gt;warning text?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="405" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="chk5" value="-nocase contains&lt;br&gt;&quot;exceeds platform capacity&quot;?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="490" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="chk6" value="-nocase contains&lt;br&gt;&quot;error&quot;?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="575" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="chk7" value="-nocase contains&lt;br&gt;&quot;invalid&quot;?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="660" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="chk8" value="-nocase contains&lt;br&gt;&quot;fail&quot;?" style="shape=rhombus;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="350" y="745" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="success" value="else: -nocase matches&lt;br&gt;expected prompt p &amp;rarr; return (success)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;html=1;" parent="1" vertex="1">
+          <mxGeometry x="340" y="830" width="260" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t1" value="exit 1&lt;br&gt;&quot;Timeout occurred. Did not&lt;br&gt;get the expected prompt!&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="150" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="exit 1 &amp;mdash; &quot;Failure detected&quot;&lt;br&gt;(unexpected CLI syntax/command)" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="235" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" value="&lt;b&gt;non-fatal&lt;/b&gt;: WARN + incr skipped_deletes&lt;br&gt;exp_continue &amp;mdash; keep watching the&lt;br&gt;same buffer (see ts-agent-lifecycle.drawio)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="315" width="320" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" value="exit 1 &amp;mdash; &quot;local firewall config&lt;br&gt;not synced&quot; (HA peer)" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="405" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t5" value="exit 1 &amp;mdash; &quot;Commit rejected: exceeds&lt;br&gt;platform capacity&quot; (see TROUBLESHOOTING.md)" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="490" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t6" value="exit 1 &amp;mdash; &quot;unknown error --&lt;br&gt;please report this condition&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="575" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t7" value="exit 1 &amp;mdash; &quot;unknown invalid --&lt;br&gt;please report this condition&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="660" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="t8" value="exit 1 &amp;mdash; &quot;unknown fail --&lt;br&gt;please report this condition&quot;" style="rounded=1;whiteSpace=wrap;fillColor=#f8cecc;strokeColor=#b85450;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="680" y="745" width="320" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="e_start" style="strokeColor=#6c8ebf;" parent="1" source="start" target="chk1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1y" value="match" style="strokeColor=#b85450;" parent="1" source="chk1" target="t1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e1n" value="no" style="strokeColor=#6c8ebf;" parent="1" source="chk1" target="chk2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2y" value="match" style="strokeColor=#b85450;" parent="1" source="chk2" target="t2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2n" value="no" style="strokeColor=#6c8ebf;" parent="1" source="chk2" target="chk3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3y" value="match" style="strokeColor=#d79b00;" parent="1" source="chk3" target="t3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3n" value="no" style="strokeColor=#6c8ebf;" parent="1" source="chk3" target="chk4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_loop" value="exp_continue" style="strokeColor=#d79b00;dashed=1;edgeStyle=orthogonalEdgeStyle;rounded=1;exitX=1;exitY=0.5;entryX=1;entryY=0.5;" parent="1" source="t3" target="start" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1060" y="347" />
+              <mxPoint x="1060" y="95" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4y" value="match" style="strokeColor=#b85450;" parent="1" source="chk4" target="t4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4n" value="no" style="strokeColor=#6c8ebf;" parent="1" source="chk4" target="chk5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5y" value="match" style="strokeColor=#b85450;" parent="1" source="chk5" target="t5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5n" value="no" style="strokeColor=#6c8ebf;" parent="1" source="chk5" target="chk6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6y" value="match" style="strokeColor=#b85450;" parent="1" source="chk6" target="t6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6n" value="no" style="strokeColor=#6c8ebf;" parent="1" source="chk6" target="chk7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7y" value="match" style="strokeColor=#b85450;" parent="1" source="chk7" target="t7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7n" value="no" style="strokeColor=#6c8ebf;" parent="1" source="chk7" target="chk8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8y" value="match" style="strokeColor=#b85450;" parent="1" source="chk8" target="t8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8n" value="no match any pattern" style="strokeColor=#82b366;" parent="1" source="chk8" target="success" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="60" y="905" width="980" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="note_text" value="&lt;b&gt;Real Tcl &amp;quot;expect&amp;quot; semantics:&lt;/b&gt; patterns are matched against whatever text next appears in the SSH buffer, not evaluated as a strict if/elif chain -- but when a single output block contains text matching more than one pattern (e.g. an error message containing both &amp;quot;exceeds platform capacity&amp;quot; and the word &amp;quot;error&amp;quot;), the pattern listed earlier in source (src/exp/myexpect.exp) wins, per the priority test documented in DEVELOPMENT.md. &amp;quot;Object doesn&amp;#39;t exist&amp;quot; is the one non-fatal branch: exp_continue re-arms the same expect and keeps waiting on the same buffer instead of exiting -- see TROUBLESHOOTING.md &amp;quot;Object doesn&amp;#39;t exist&amp;quot; and ts-agent-lifecycle.drawio.&lt;br&gt;&lt;br&gt;&lt;b&gt;Callers&lt;/b&gt; (each sources myexpect.exp): ssh-init.exp &amp;bull; tsagent-configured.exp &amp;bull; tsagent-modify-panorama.exp &amp;bull; tsagent-modify-firewall.exp &amp;bull; tsagent-not-connected.exp &amp;mdash; see ssh-session-lifecycle.drawio for the login sequence that first establishes the session this decision tree then guards." style="text;html=1;fontSize=10;align=left;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="80" y="915" width="940" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

@@ -96,6 +96,10 @@ Set `debug` to `1` to see why individual hosts are skipped or kept. Set `trace` 
 
 ## Common errors
 
+The errors below are the named branches of `myexpect.exp`'s priority-ordered PAN-OS CLI response handling, checked in this order for every `send`/`expect` round-trip:
+
+[![myexpect.exp error decision tree](myexpect-error-tree.png)](myexpect-error-tree.drawio)
+
 ### Timeout occurred
 
 ```
@@ -111,7 +115,9 @@ SSH failure for fw-hostname
 Login failed. Password incorrect.
 ```
 
-Verify `config(username)` and `config(password)` in `config.tcl`. Confirm the account is not locked and SSH is enabled on the management interface.
+Verify `config(username)` and `config(password)` in `config.tcl`. Confirm the account is not locked and SSH is enabled on the management interface. Both errors are the two exit-1 branches in the login handshake, before `myexpect.exp` is ever reached:
+
+[![SSH session lifecycle](ssh-session-lifecycle.png)](ssh-session-lifecycle.drawio)
 
 ### HA sync warning
 
@@ -227,7 +233,7 @@ crontab -l
 
 Look for gaps in the purge log's timestamps or repeated non-zero exits — either indicates the purge cron job isn't keeping the configured agent count down.
 
-**Detection caveat:** `myexpect.exp` only recognizes a small set of named PAN-OS strings (`Unknown command`, `Object doesn't exist`, the HA sync warning); anything else, including a platform-capacity commit failure, falls through to the generic `-nocase "error"`/`-nocase "fail"` match and is reported simply as `## unknown error -- please report this condition`. If a `commit-all` push to a large template stack is slow enough to exceed the 45-second `timeout`, the same failure can instead surface as `Timeout occurred`. In both cases, the actual PAN-OS response text is captured immediately above that line in the log (via `myexec`'s `log "info" "$args $results"`) — check it for the real error rather than relying on the generic message.
+**Detection caveat:** `myexpect.exp` matches a platform-capacity commit failure via an explicit `-nocase "exceeds platform capacity"` branch, checked before its generic `-nocase "error"`/`-nocase "fail"` catch-alls -- see myexpect-error-tree.drawio for the full priority-ordered decision tree. If PAN-OS ever phrases the rejection without that exact substring, it falls through to the generic `-nocase "error"`/`-nocase "fail"` match instead and is reported simply as `## unknown error -- please report this condition`. If a `commit-all` push to a large template stack is slow enough to exceed the 45-second `timeout`, the same failure can instead surface as `Timeout occurred`. In all cases, the actual PAN-OS response text is captured immediately above that line in the log (via `myexec`'s `log "info" "$args $results"`) — check it for the real error rather than relying on the generic message.
 
 **Config drift caveat:** `discover.tcl`'s "already configured" check (`tsagent-configured.exp`) reads the configuration in configure mode, which reflects the *candidate* config, not the committed/running config. If a `set template ... ts-agent ...` edit lands in the candidate config but the following commit or commit-all then fails (e.g. due to platform capacity), that host will still be reported as "already configured" on the next discovery run and won't be retried or re-flagged. If an agent seems to have gone missing without ever reappearing as newly discovered, cross-check Panorama for a failed or partial commit job around the relevant timestamp:
 
@@ -235,6 +241,10 @@ Look for gaps in the purge log's timestamps or repeated non-zero exits — eithe
 > show jobs all
 > show jobs id <job-id>
 ```
+
+Both caveats above, and the rest of a TS Agent object's state across `discover.tcl` and `purge.tcl`, are mapped out here:
+
+[![TS Agent object lifecycle](ts-agent-lifecycle.png)](ts-agent-lifecycle.drawio)
 
 ## Manual verification
 

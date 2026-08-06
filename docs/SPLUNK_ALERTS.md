@@ -6,6 +6,10 @@ covered here).
 
 ## Log format
 
+The full path from call site to alert, including the `logger`-failure fallback and where each numbered alert below keys in:
+
+[![Log and alert pipeline](log-alert-pipeline.png)](log-alert-pipeline.drawio)
+
 Both scripts log through the shared `log` proc in `src/inc/common-proc.tcl`:
 
 ```tcl
