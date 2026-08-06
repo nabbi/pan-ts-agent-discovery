@@ -623,6 +623,52 @@ test discover-dns-valid-continue {non-empty dig result means continue} -body {
     expr {[llength $dig] == 0}
 } -result 0
 
+# ------------------------------------------------------------------------
+# Characterization tests: discover.tcl's agent_host reconstruction
+# (see the KNOWN LIMITATION comment above the split in discover.tcl).
+# These pin down the CURRENT behavior, including the known-wrong outputs
+# for non-3-label PTR values, so a future change to that logic is a
+# deliberate, visible decision rather than an accidental behavior change.
+# agent_host is a display/label value on the firewall object, not a value
+# PAN-OS resolves to connect (connectivity is always via the
+# already fping/TLS-verified IP), so these wrong outputs are cosmetic today
+# -- but "cosmetic" is exactly why it's easy to change by accident without
+# a test noticing.
+# ------------------------------------------------------------------------
+
+proc build_agent_host {dig} {
+    set agent_name [lindex [split $dig "."] 0]
+    set domain [lindex [split $dig "."] 1]
+    set tld [lindex [split $dig "."] 2]
+    set agent_host "$agent_name.$domain.$tld"
+    return [list $agent_name $agent_host]
+}
+
+test discover-agent-host-3-labels {agent_host: exactly 3 labels reconstructs correctly} -body {
+    build_agent_host "server01.domain.com."
+} -result {server01 server01.domain.com}
+
+test discover-agent-host-more-than-3-labels {
+    agent_host: KNOWN LIMITATION -- more than 3 labels (e.g. a nested/AD
+    domain) silently truncates, dropping the trailing labels
+} -body {
+    build_agent_host "server01.dc1.corp.example.com."
+} -result {server01 server01.dc1.corp}
+
+test discover-agent-host-2-labels {
+    agent_host: KNOWN LIMITATION -- a single-label domain (no TLD split
+    position) leaves a trailing-dot artifact
+} -body {
+    build_agent_host "server01.lan."
+} -result {server01 server01.lan.}
+
+test discover-agent-host-1-label {
+    agent_host: KNOWN LIMITATION -- a bare hostname with no domain at all
+    leaves a double trailing-dot artifact
+} -body {
+    build_agent_host "server01"
+} -result {server01 server01..}
+
 
 # ========================================================================
 # purge.tcl pattern matching logic

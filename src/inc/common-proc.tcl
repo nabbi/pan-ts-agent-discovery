@@ -77,8 +77,12 @@ proc myfping {args} {
     # strip non-ipv4 address from the returned data. empty if none
     set valid {}
     foreach ip $results {
-        set ipv4 1
-        foreach o [split $ip .] {
+        set octets [split $ip .]
+        # must be exactly 4 dot-separated octets -- otherwise inputs like ""
+        # (zero octets) or "10.0.1" (3 octets) pass by default since the
+        # per-octet loop below never runs long enough to flip ipv4 to 0
+        set ipv4 [expr {[llength $octets] == 4}]
+        foreach o $octets {
             if { ! ( ( $o >= 0 ) && ( $o <=255 ) && ([string is digit $o] ) ) } {
                 set ipv4 0
             }

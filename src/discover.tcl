@@ -75,6 +75,23 @@ foreach ip $alive {
             }
 
             # we need an object name (ie host) and fqdn for the firewall configs
+            #
+            # KNOWN LIMITATION: this assumes exactly 3 dot-separated labels
+            # (host.domain.tld). A PTR with a nested/subdomain name (e.g.
+            # host.dc1.corp.example.com, common in AD environments) silently
+            # truncates -- trailing labels beyond position 2 are dropped. A
+            # single-label domain (host.lan) or a bare hostname with no
+            # domain leaves a trailing-dot artifact instead. See the
+            # "discover-agent-host-*" characterization tests in
+            # common-proc.test.tcl for the exact current outputs.
+            #
+            # This is believed low-risk today because agent_host is only a
+            # display/label value on the firewall object -- PAN-OS does not
+            # resolve it to connect (connectivity is always via the IP
+            # already fping/TLS-verified above), and the "already
+            # configured" match below keys on agent_name, not agent_host.
+            # Left as-is pending confirmation before changing the format of
+            # a value written into live firewall/Panorama config.
             set agent_name [lindex [split $dig "."] 0]
             set domain [lindex [split $dig "."] 1]
             set tld [lindex [split $dig "."] 2]

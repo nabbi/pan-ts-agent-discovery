@@ -37,7 +37,7 @@ This suite uses `expect` (not `tclsh`) since `myexpect.exp` drives the real `exp
 - Panorama config pattern matching (DNS and IP modes)
 - Firewall-mode config pattern matching (DNS and IP modes, multi-agent)
 - Multi-agent and wrong-template rejection
-- FQDN parsing (hostname, domain, TLD extraction)
+- FQDN parsing (hostname, domain, TLD extraction), including characterization tests (`discover-agent-host-*`) pinning down the current, known-truncating behavior for PTR values with other than 3 dot-separated labels -- see the "KNOWN LIMITATION" comment above the split in `discover.tcl`. `agent_host` is a display/label value only (PAN-OS doesn't resolve it to connect, and the "already configured" match keys on `agent_name`), so this is believed cosmetic, not yet changed pending confirmation
 - IP deduplication
 - Add-list `object,hostname` format construction and parsing
 
