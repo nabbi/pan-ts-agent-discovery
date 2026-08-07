@@ -25,6 +25,10 @@ Removes stale not-connected PAN TS Agents from Panorama
 
 Changes are committed and pushed to defined template stacks
 
+Both scripts support two target modes: Panorama-managed (default), or
+direct-to-firewall when `config(panorama)` is set to `disable` -- see
+[CONFIGURATION](docs/CONFIGURATION.md).
+
 ## configuration
 
 See [CONFIGURATION](docs/CONFIGURATION.md) for parameter details. Create your local config from the example:
@@ -50,3 +54,7 @@ See [INSTALL](docs/INSTALL.md) for more hints on setting up your environment, a 
 ## troubleshooting
 
 See [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) for reviewing logs, PAN-OS CLI checks, and common errors.
+
+## changelog
+
+See [CHANGELOG](CHANGELOG.md) for release history and notable changes.
