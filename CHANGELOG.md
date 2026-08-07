@@ -13,20 +13,25 @@ throughout.
 
 ## [v1.8](https://github.com/nabbi/pan-ts-agent-discovery/releases/tag/v1.8) — 2026-08-06
 
-**Upgrade guidance: recommended, security-relevant.** Closes three
-defense-in-depth CRLF/charset injection gaps found via an expanded fuzz
-suite and a new end-to-end test harness for the `.exp` scripts that
-previously had no automated coverage at all — take this if you run
-`purge.tcl` or either `tsagent-modify-*.exp` path regularly. Also adds
-`config(loglevel)` verbosity control and structured `run=... status=start`/
-`status=ok` operational-status and add/delete-metrics logging to syslog —
-worth taking too if you want per-run health and change-volume visibility
-in Splunk, but that half is a feature addition, not a fix.
+**Upgrade guidance: recommended.** Hardens `purge.tcl` and both
+`tsagent-modify-*.exp` paths against malformed/CRLF-carrying object and
+hostname values, found via an expanded fuzz suite and a new end-to-end
+test harness for the `.exp` scripts that previously had no automated
+coverage at all — worth taking if you run `purge.tcl` or either path
+regularly, though neither is independently exploitable by an outside
+attacker: the actual untrusted-input entry point (DNS-controlled PTR
+data) was already gated in v1.6; these two close secondary paths
+that would only matter given a compromised/misbehaving upstream or
+malformed device output. Also adds `config(loglevel)` verbosity control
+and structured `run=... status=start`/`status=ok` operational-status and
+add/delete-metrics logging to syslog — worth taking too if you want
+per-run health and change-volume visibility in Splunk, but that half is a
+feature addition, not a fix.
 
 - **feature:** added `config(loglevel)` (0=quiet, 1=info default, 2=debug, 3=trace) to control `discover.tcl`/`purge.tcl` stdout/file-log verbosity from `config.tcl`, replacing the hardcoded `set info 1 / set debug 0 / set trace 0` at the top of each script. Optional — defaults to `1` (prior behavior) when omitted. Does not affect syslog, which was never gated by these flags. ([c3feeaf](https://github.com/nabbi/pan-ts-agent-discovery/commit/c3feeaf))
 - **feature:** `discover.tcl`/`purge.tcl` now log a `run=<job> status=start` line at the top of each run and a `run=<job> status=ok elapsed_sec=... ...` summary (scanned/discovered/added or notconn/deleted counts) at the bottom, both `info`-level `key=value` lines alongside the existing per-host add/delete logging. Gives syslog/Splunk overall operational status per run plus a countable add/delete metrics stream, and lets a missing `status=ok` after a `status=start` flag a crashed/hung/killed run. Documented in `SPLUNK_ALERTS.md` with a missing-completion alert recipe and an add/delete volume trend search. ([0fde8ff](https://github.com/nabbi/pan-ts-agent-discovery/commit/0fde8ff))
-- **security fix:** a `not-conn` line with a brace-/quote-grouped field could carry a literal `\r` through `purge.tcl`'s `lindex`-based parsing into `$object`/`$hostname`, reaching a live `send "...ts-agent $object\r"`. Gated with the same `^[A-Za-z0-9._-]+$` hostname charset check `discover.tcl` already applies to PTR values. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
-- **security fix:** `tsagent-modify-firewall.exp`/`tsagent-modify-panorama.exp` walk their `$input` argument with `foreach i $input`, which parses it as a Tcl list — an embedded `\r` in a single `"object,host"` add entry fanned out into extra list elements, one of which became a live `send` silently overwriting an unrelated, already-configured agent's host with an empty value. Neither script independently validated `object`/`host` before this (found via the new `exp-e2e.test.tcl` harness, which sources the real scripts rather than a mirrored copy). Both now gate on the same charset check, mirrored across the two files. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
+- **fix:** a `not-conn` line with a brace-/quote-grouped field could carry a literal `\r` through `purge.tcl`'s `lindex`-based parsing into `$object`/`$hostname`, reaching a live `send "...ts-agent $object\r"`. By this point `object`/`hostname` values have already passed the `^[A-Za-z0-9._-]+$` charset gate applied where PTR data first enters the system (v1.6), so this hardens a secondary path (a compromised/misbehaving PAN-OS peer or drifted config) rather than closing an independently reachable attacker path — gated with the same charset check regardless. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
+- **fix:** `tsagent-modify-firewall.exp`/`tsagent-modify-panorama.exp` walk their `$input` argument with `foreach i $input`, which parses it as a Tcl list — an embedded `\r` in a single `"object,host"` add entry fanned out into extra list elements, one of which became a live `send` silently overwriting an unrelated, already-configured agent's host with an empty value. Neither script independently validated `object`/`host` before this (found via the new `exp-e2e.test.tcl` harness, which sources the real scripts rather than a mirrored copy). As with the `purge.tcl` case above, values reaching here already passed the v1.6 charset gate, so this is hardening rather than an independently exploitable gap. Both now gate on the same charset check, mirrored across the two files. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
 - **fix:** `myfping` iterated `fping`'s raw output with `foreach ip $results`, parsing it as an implicit Tcl list — a stray unbalanced brace/quote token (a malfunctioning/corrupted `fping`) would throw uncaught and crash the entire `discover.tcl` run, with no `catch` protecting it. Fixed by splitting on `\n` first, which never throws. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
 - **fix:** `myfping`'s per-octet IPv4 check used `string is digit` and `expr`'s `>=`/`<=`, both Unicode-aware — a non-ASCII decimal digit (e.g. Arabic-Indic `٥`) could pass as a valid octet, letting a non-IPv4 string slip through as "valid". Now requires a strict ASCII `^[0-9]{1,3}$` match first. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
 - test: added `exp-e2e.test.tcl` (real end-to-end coverage for `tsagent-configured.exp`/`tsagent-not-connected.exp`/`tsagent-modify-firewall.exp`/`tsagent-modify-panorama.exp`, none of which had any automated test before) and `fuzz-myfping.test.tcl`; extended `fuzz-purge-parsing.test.tcl` with a no-crlf/gate-bypass invariant ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
