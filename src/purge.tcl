@@ -3,16 +3,18 @@
 exec tclsh "$0" "$@"
 # nic@boet.cc
 
-set info 1
-set debug 0
-set trace 0
-
 set path [file dirname [file normalize [info script]]]
 if { [catch { source $path/inc/config.tcl }] } {
     puts "config.tcl does not exist, please create it from config.tcl.example"
     exit 1
 }
 source $path/inc/common-proc.tcl
+
+# config(loglevel): 0=quiet (errors/summary only) 1=info (default) 2=debug 3=trace
+if { ![info exists config(loglevel)] } { set config(loglevel) 1 }
+set info  [expr {$config(loglevel) >= 1}]
+set debug [expr {$config(loglevel) >= 2}]
+set trace [expr {$config(loglevel) >= 3}]
 
 
 set start_epoch [clock seconds]

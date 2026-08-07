@@ -10,6 +10,23 @@ The `config.tcl` file is sourced by both `discover.tcl` and `purge.tcl` at start
 
 ## Parameters
 
+### loglevel
+
+```tcl
+set config(loglevel) {1}
+```
+
+Console/file-log verbosity for `discover.tcl`/`purge.tcl` (the file log is the cron-redirected primary record — see [SPLUNK_ALERTS.md](SPLUNK_ALERTS.md) for the separate syslog stream, which always logs errors and the per-run/per-change events regardless of this setting):
+
+| Level | Output |
+|-------|--------|
+| `0` | quiet — errors and the final run summary only |
+| `1` | info (default) — adds start/end banners and per-host add/delete/skip lines |
+| `2` | debug — adds skip-reason detail (already-configured, suspicious-record skips, etc.) |
+| `3` | trace — adds raw intermediate lists (e.g. the full alive-host list) |
+
+Optional — if omitted from `config.tcl`, defaults to `1` (matches prior behavior before this setting existed).
+
 ### networks
 
 ```tcl

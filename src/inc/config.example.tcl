@@ -1,4 +1,10 @@
 
+# Console/file-log verbosity for discover.tcl/purge.tcl -- does not affect
+# syslog, which always logs errors and the per-run/per-change events
+# regardless of this setting. 0=quiet (errors and run summary only)
+# 1=info (default) 2=debug (+ skip/decision detail) 3=trace (+ raw lists)
+set config(loglevel) {1}
+
 # Citrix server networks to probe for active TS Agents
 set config(networks) {10.10.10.0/24 192.168.0.0/16 172.16.0.1 172.16.0.5}
 
