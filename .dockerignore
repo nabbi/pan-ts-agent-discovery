@@ -1,0 +1,6 @@
+# never let a locally-created live config (PAN-OS admin credentials) end up
+# baked into an image layer -- it's mounted in at `docker run` time instead,
+# see docs/INSTALL.md
+src/inc/config.tcl
+
+.git

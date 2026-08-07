@@ -10,24 +10,40 @@ cd pan-ts-agent-discovery
 ```
 
 ## Build
-Once config.tcl is defined, build your custom image with:
 
 ```shell
-cp src/inc/config.example.tcl src/inc/config.tcl
-# edit src/inc/config.tcl with your values
 docker build .
 ```
 
 This will build everything in your local repo (not cloning from github) so you can customize the crontab or code to test within your custom deployment.
+
+`src/inc/config.tcl` is deliberately **not** part of the image -- it holds
+your PAN-OS admin credentials, and `.dockerignore` keeps it out of the
+build context so it can never end up baked into an image layer (readable
+by anyone who later pulls or `docker save`s the image). It's supplied at
+run time instead, see below.
 
 
 ## Run
 
 Copy the image where ever you spin your containers.
 
+Create your local config and bind-mount it read-only into the container
+at `/opt/pan-ts-agent-discovery/inc/config.tcl`:
+
 ```shell
-docker run -d <hash>
+cp src/inc/config.example.tcl src/inc/config.tcl
+# edit src/inc/config.tcl with your values
+
+docker run -d \
+    -v $(pwd)/src/inc/config.tcl:/opt/pan-ts-agent-discovery/inc/config.tcl:ro \
+    <hash>
 ```
+
+The same file works unchanged as a Kubernetes Secret volume mount at that
+path -- `discover.tcl`/`purge.tcl` re-read it from disk on every cron run,
+so no image rebuild or app change is needed to rotate credentials, just
+update the mounted file/Secret.
 
 # Manual
 
