@@ -9,13 +9,19 @@ No breaking changes have been introduced in any release covered here —
 config file format, CLI usage, and cron/Docker invocation are unchanged
 throughout.
 
-## [Unreleased] (since v1.7)
+## [Unreleased]
+
+## [v1.8](https://github.com/nabbi/pan-ts-agent-discovery/releases/tag/v1.8) — 2026-08-06
 
 **Upgrade guidance: recommended, security-relevant.** Closes three
 defense-in-depth CRLF/charset injection gaps found via an expanded fuzz
 suite and a new end-to-end test harness for the `.exp` scripts that
 previously had no automated coverage at all — take this if you run
-`purge.tcl` or either `tsagent-modify-*.exp` path regularly.
+`purge.tcl` or either `tsagent-modify-*.exp` path regularly. Also adds
+`config(loglevel)` verbosity control and structured `run=... status=start`/
+`status=ok` operational-status and add/delete-metrics logging to syslog —
+worth taking too if you want per-run health and change-volume visibility
+in Splunk, but that half is a feature addition, not a fix.
 
 - **feature:** added `config(loglevel)` (0=quiet, 1=info default, 2=debug, 3=trace) to control `discover.tcl`/`purge.tcl` stdout/file-log verbosity from `config.tcl`, replacing the hardcoded `set info 1 / set debug 0 / set trace 0` at the top of each script. Optional — defaults to `1` (prior behavior) when omitted. Does not affect syslog, which was never gated by these flags. ([c3feeaf](https://github.com/nabbi/pan-ts-agent-discovery/commit/c3feeaf))
 - **feature:** `discover.tcl`/`purge.tcl` now log a `run=<job> status=start` line at the top of each run and a `run=<job> status=ok elapsed_sec=... ...` summary (scanned/discovered/added or notconn/deleted counts) at the bottom, both `info`-level `key=value` lines alongside the existing per-host add/delete logging. Gives syslog/Splunk overall operational status per run plus a countable add/delete metrics stream, and lets a missing `status=ok` after a `status=start` flag a crashed/hung/killed run. Documented in `SPLUNK_ALERTS.md` with a missing-completion alert recipe and an add/delete volume trend search. ([0fde8ff](https://github.com/nabbi/pan-ts-agent-discovery/commit/0fde8ff))
