@@ -1,6 +1,6 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.5 Chrome/138.0.7204.251 Electron/37.6.1 Safari/537.36" version="28.2.5">
   <diagram id="logpipeline" name="Log and Alert Pipeline">
-    <mxGraphModel dx="866" dy="459" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1850" pageHeight="900" math="0" shadow="0">
+    <mxGraphModel dx="866" dy="459" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1850" pageHeight="960" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -30,6 +30,9 @@
         </mxCell>
         <mxCell id="s7" value="myexec: child exits 0&lt;br&gt;(routine success &amp;mdash; info level, not alerted)" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;html=1;" parent="1" vertex="1">
           <mxGeometry x="40" y="520" width="300" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" value="discover.tcl / purge.tcl: run=&amp;lt;job&amp;gt;&lt;br&gt;status=start (run begins) and&lt;br&gt;status=ok elapsed_sec=... added=...&lt;br&gt;deleted=... (run completes) &amp;mdash; info level" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;html=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="585" width="300" height="60" as="geometry" />
         </mxCell>
         <mxCell id="log_proc" value="&lt;b&gt;log(level, msg)&lt;/b&gt;&lt;br&gt;src/inc/common-proc.tcl&lt;hr&gt;&lt;font size=&quot;1&quot;&gt;1. regsub CR/LF/CRLF &amp;rarr; &amp;quot; :: &amp;quot;&lt;br&gt;(prevents log-forging, CWE-117)&lt;br&gt;2. truncate body to 200 chars&lt;br&gt;3. catch { exec logger -p&lt;br&gt;user.$level &amp;quot;[info script] $msg&amp;quot; }&lt;/font&gt;" style="shape=note;whiteSpace=wrap;fillColor=#FFFFFF;strokeColor=#666666;fontSize=11;html=1;size=14;" parent="1" vertex="1">
           <mxGeometry x="440" y="260" width="260" height="200" as="geometry" />
@@ -70,6 +73,9 @@
         <mxCell id="a6" value="&lt;b&gt;#6&lt;/b&gt; .exp sub-script failure&lt;br&gt;(needs severity=error filter --&lt;br&gt;not distinguishable by content alone)" style="rounded=1;whiteSpace=wrap;fillColor=#ffe6cc;strokeColor=#d79b00;dashed=1;fontSize=10;html=1;" parent="1" vertex="1">
           <mxGeometry x="1520" y="410" width="300" height="65" as="geometry" />
         </mxCell>
+        <mxCell id="a_metrics" value="&lt;b&gt;New:&lt;/b&gt; missing-completion detection&lt;br&gt;(status=start with no matching status=ok --&lt;br&gt;count comparison over a time window,&lt;br&gt;not a single-line content match. See&lt;br&gt;SPLUNK_ALERTS.md &amp;quot;Operational status&lt;br&gt;&amp;amp; change metrics&amp;quot;, not numbered #1-#7)" style="rounded=1;whiteSpace=wrap;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=10;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="495" width="300" height="80" as="geometry" />
+        </mxCell>
         <mxCell id="e_s1" style="strokeColor=#6c8ebf;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s1" target="log_proc" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -89,6 +95,9 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e_s7" style="strokeColor=#999999;dashed=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s7" target="log_proc" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_s8" style="strokeColor=#999999;dashed=1;edgeStyle=orthogonalEdgeStyle;" parent="1" source="s8" target="log_proc" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="e_logger" style="strokeColor=#666666;" parent="1" source="log_proc" target="d_logger" edge="1">
@@ -121,14 +130,17 @@
         <mxCell id="e_a6" style="strokeColor=#999999;dashed=1;" parent="1" source="t_splunk" target="a6" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
+        <mxCell id="e_a_metrics" style="strokeColor=#82b366;dashed=1;" parent="1" source="t_splunk" target="a_metrics" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
         <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;" parent="1" vertex="1">
-          <mxGeometry x="40" y="600" width="1780" height="230" as="geometry" />
+          <mxGeometry x="40" y="660" width="1780" height="280" as="geometry" />
         </mxCell>
         <mxCell id="legend_title" value="&lt;b&gt;Notes&lt;/b&gt;" style="text;html=1;fontSize=12;align=left;" parent="1" vertex="1">
-          <mxGeometry x="60" y="608" width="200" height="20" as="geometry" />
+          <mxGeometry x="60" y="668" width="200" height="20" as="geometry" />
         </mxCell>
-        <mxCell id="legend_text" value="Both scripts append their stdout to /var/log/paloalto/pan-tsagent-{discover,purge}.log via cron redirect -- that file log is the primary record and is never lost, even when the logger call itself fails (see the amber fallback path above). Syslog/Splunk is the secondary, alertable sink.&lt;br&gt;&lt;br&gt;None of alerts #1-#5 filter on user.error vs user.info priority by content alone -- they key off the distinct message *shape* each source logs (see SPLUNK_ALERTS.md #1-#5 for the exact rex/regex used to tell them apart, e.g. #3&amp;#39;s two-token &amp;lt;host&amp;gt; &amp;lt;status&amp;gt; vs #5&amp;#39;s three-or-more-token shape). &lt;b&gt;Alert #6 is the exception&lt;/b&gt;: it captures whatever myexec logs for a failed .exp child (SSH failure, timeout, unknown command, HA sync warning, platform capacity exceeded, or an unrecognized PAN-OS error -- see myexpect-error-tree.drawio for that full decision tree) and is *not* distinguishable from a routine successful run by content alone, so it needs a severity=error (or your syslog TA&amp;#39;s equivalent) field filter to avoid false positives -- treat it as a tuning starting point, not a page-on-sight alert, per SPLUNK_ALERTS.md &amp;quot;#6&amp;quot;.&lt;br&gt;&lt;br&gt;The alert.suppress.fields=ip pattern in SPLUNK_ALERTS.md&amp;#39;s example savedsearches.conf means one misbehaving host pages once per hour, not once per discovery cycle, while it remains unresolved." style="text;html=1;fontSize=10;align=left;whiteSpace=wrap;" parent="1" vertex="1">
-          <mxGeometry x="60" y="630" width="1740" height="185" as="geometry" />
+        <mxCell id="legend_text" value="Both scripts append their stdout to /var/log/paloalto/pan-tsagent-{discover,purge}.log via cron redirect -- that file log is the primary record and is never lost, even when the logger call itself fails (see the amber fallback path above). Syslog/Splunk is the secondary, alertable sink.&lt;br&gt;&lt;br&gt;None of alerts #1-#5 filter on user.error vs user.info priority by content alone -- they key off the distinct message *shape* each source logs (see SPLUNK_ALERTS.md #1-#5 for the exact rex/regex used to tell them apart, e.g. #3&amp;#39;s two-token &amp;lt;host&amp;gt; &amp;lt;status&amp;gt; vs #5&amp;#39;s three-or-more-token shape). &lt;b&gt;Alert #6 is the exception&lt;/b&gt;: it captures whatever myexec logs for a failed .exp child (SSH failure, timeout, unknown command, HA sync warning, platform capacity exceeded, or an unrecognized PAN-OS error -- see myexpect-error-tree.drawio for that full decision tree) and is *not* distinguishable from a routine successful run by content alone, so it needs a severity=error (or your syslog TA&amp;#39;s equivalent) field filter to avoid false positives -- treat it as a tuning starting point, not a page-on-sight alert, per SPLUNK_ALERTS.md &amp;quot;#6&amp;quot;.&lt;br&gt;&lt;br&gt;The alert.suppress.fields=ip pattern in SPLUNK_ALERTS.md&amp;#39;s example savedsearches.conf means one misbehaving host pages once per hour, not once per discovery cycle, while it remains unresolved.&lt;br&gt;&lt;br&gt;&lt;b&gt;s8 (run=&amp;lt;job&amp;gt; status=start / status=ok) is new&lt;/b&gt;: unlike every other source here, it&amp;#39;s not an error signal by itself -- it&amp;#39;s a per-run heartbeat plus add/delete counts, always logged at info regardless of success. Its value comes from *absence*: a status=start with no matching status=ok within the job&amp;#39;s normal runtime (green box, right) means the run crashed, hung, or was killed mid-batch. That can&amp;#39;t be detected by matching a single line&amp;#39;s content the way alerts #1-#6 are -- it requires comparing counts of two different lines over a scheduled window, per SPLUNK_ALERTS.md &amp;quot;Operational status &amp;amp; change metrics&amp;quot;." style="text;html=1;fontSize=10;align=left;whiteSpace=wrap;" parent="1" vertex="1">
+          <mxGeometry x="60" y="690" width="1740" height="235" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
