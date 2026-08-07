@@ -75,15 +75,25 @@ proc myfping {args} {
     }
 
     # strip non-ipv4 address from the returned data. empty if none
+    #
+    # iterate over a plain newline split, not "foreach ip $results" directly --
+    # foreach parses its list argument as a Tcl list, and a single stray
+    # unbalanced brace/quote token anywhere in fping's raw output (a
+    # malfunctioning/corrupted fping) would throw "unmatched open brace in
+    # list" uncaught, killing the whole discover.tcl run. split never throws.
     set valid {}
-    foreach ip $results {
+    foreach ip [split $results "\n"] {
         set octets [split $ip .]
         # must be exactly 4 dot-separated octets -- otherwise inputs like ""
         # (zero octets) or "10.0.1" (3 octets) pass by default since the
         # per-octet loop below never runs long enough to flip ipv4 to 0
         set ipv4 [expr {[llength $octets] == 4}]
         foreach o $octets {
-            if { ! ( ( $o >= 0 ) && ( $o <=255 ) && ([string is digit $o] ) ) } {
+            # `string is digit` and expr's >=/<= are Unicode-aware -- a
+            # non-ASCII decimal digit (e.g. Arabic-Indic U+0665 "٥") passes
+            # both, so a garbage token could slip through as a "valid" IPv4
+            # octet. Require a strict ASCII digit run first.
+            if { ![regexp {^[0-9]{1,3}$} $o] || $o > 255 } {
                 set ipv4 0
             }
         }

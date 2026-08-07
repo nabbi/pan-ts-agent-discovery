@@ -53,7 +53,8 @@ cron interval.
 | 3 | TS Agent TLS probe error (incl. ECONNRESET) | discover.tcl (mytsagent) | `<host> <status>` at `user.error`, two tokens |
 | 4 | Reverse DNS lookup failed | discover.tcl (mydig) | `mydig <ip> <status> ...` |
 | 5 | fping fatal error (exit 2+) | discover.tcl (myfping) | `<args> <status> <results>` at `user.error`, 3+ tokens |
-| 6 | `.exp` sub-script failure (SSH, timeout, unknown command, HA sync, platform capacity, unrecognized error) | discover.tcl / purge.tcl (myexec) | myexec output not matched by #1-#5's shapes (needs a priority filter, see below) |
+| 6 | `.exp` sub-script failure (SSH, timeout, unknown command, HA sync, platform capacity, unrecognized error) | discover.tcl / purge.tcl (myexec) | myexec output not matched by #1-#5/#7's shapes (needs a priority filter, see below) |
+| 7 | Suspicious not-conn object/hostname rejected | purge.tcl | `purge: suspicious not-conn object/hostname, skipping:` |
 
 ### 1. Suspicious PTR record rejected
 
@@ -141,6 +142,7 @@ index=paloalto sourcetype=syslog ("discover.tcl" OR "purge.tcl")
 | where NOT match(body, "^\S+\s+\d+$") AND NOT match(body, "^\S+\s+\d+\s+\S")
    AND NOT match(body, "^mydig ") AND NOT match(body, "^suspicious PTR record")
    AND NOT match(body, "^purge: could not parse")
+   AND NOT match(body, "^purge: suspicious not-conn")
 ```
 
 Unlike #3/#5, this shape (arbitrary `myexec` args + captured output) is *not*
@@ -152,6 +154,23 @@ equivalent) to avoid false positives from routine runs; without one, treat it as
 starting point to tune against your own traffic rather than something to page on
 directly. Routing each `.exp` failure through a more specific `log "error"` call at
 the source instead of relying on `myexec`'s generic capture would also narrow this.
+
+### 7. Suspicious not-conn object/hostname rejected
+
+Security-relevant, same class as #1: fires when `purge.tcl`'s object/hostname
+validation (`^[A-Za-z0-9._-]+$`, the same charset gate `discover.tcl` applies
+to PTR values) rejects a value parsed from the firewall's own `not-conn`
+output that would otherwise flow unsanitized into a live `delete
+...ts-agent $object\r` command. Since this is the firewall's *own* CLI
+response rather than DNS, a hit here is more surprising than #1 -- worth
+treating as a possible sign of session/output corruption or a compromised
+device rather than routine DNS hygiene:
+
+```spl
+index=paloalto sourcetype=syslog "purge.tcl" "suspicious not-conn"
+| rex field=_raw "suspicious not-conn object/hostname, skipping: (?<line>.+)$"
+| table _time line
+```
 
 ## Example `savedsearches.conf`
 

@@ -735,7 +735,8 @@ admin@fw>"
 # purge.tcl combined decision logic (not-conn match AND mytsagent recheck)
 # ========================================================================
 
-# mirrors purge.tcl's actual loop, including its malformed-line catch
+# mirrors purge.tcl's actual loop, including its malformed-line catch and
+# object/hostname charset gate
 proc purge_decide {notconn} {
     set delete {}
     set found {}
@@ -745,6 +746,9 @@ proc purge_decide {notconn} {
                 set object   [lindex $n 0]
                 set hostname [lindex $n 1]
             }]} {
+                continue
+            }
+            if { ![regexp {^[A-Za-z0-9._-]+$} $object] || ![regexp {^[A-Za-z0-9._-]+$} $hostname] } {
                 continue
             }
             lappend found $object
@@ -797,6 +801,44 @@ server02   10.0.0.2   5009   vsys1   not-conn:   0/0/0"
 } -cleanup {
     mock_exec_clear
 } -result {server02 server02}
+
+test purge-decide-rejects-embedded-cr-in-object {
+    a braced list element carrying a literal \r in the object field parses
+    cleanly (no Tcl list error) but must be rejected by the charset gate --
+    otherwise the \r would reach send "...ts-agent $object\r" and inject an
+    extra CLI command
+} -setup {
+    mock_exec_fail "connection refused" 1
+} -body {
+    purge_decide "\{server\r01\}   10.0.0.1   5009   vsys1   not-conn:   0/0/0
+server02   10.0.0.2   5009   vsys1   not-conn:   0/0/0"
+} -cleanup {
+    mock_exec_clear
+} -result {server02 server02}
+
+test purge-decide-rejects-embedded-cr-in-hostname {
+    same as above but the \r is smuggled in the hostname field, which flows
+    into mytsagent's exec and, on delete, is not sent directly but must still
+    be rejected symmetrically with object
+} -setup {
+    mock_exec_fail "connection refused" 1
+} -body {
+    purge_decide "server01   \{10.0.0.1\r\}   5009   vsys1   not-conn:   0/0/0
+server02   10.0.0.2   5009   vsys1   not-conn:   0/0/0"
+} -cleanup {
+    mock_exec_clear
+} -result {server02 server02}
+
+test purge-decide-accepts-normal-object {
+    sanity check: the new charset gate does not reject ordinary object/hostname
+    values -- a plain not-conn line still gets found/deleted as before
+} -setup {
+    mock_exec_fail "connection refused" 1
+} -body {
+    purge_decide "server01.domain-01   10.0.0.1   5009   vsys1   not-conn:   0/0/0"
+} -cleanup {
+    mock_exec_clear
+} -result {server01.domain-01 server01.domain-01}
 
 
 # ========================================================================

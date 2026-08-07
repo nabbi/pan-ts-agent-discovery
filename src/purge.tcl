@@ -43,6 +43,19 @@ foreach n [split $notconn "\n"] {
             continue
         }
 
+        # object/hostname come from live firewall CLI output -- normally a bare \r
+        # is just inter-field whitespace to lindex's list parsing, but a
+        # brace-/quote-grouped field in a malformed or spoofed line can carry a
+        # literal \r straight through. Both values eventually reach a live
+        # `send` command (delete ...$object\r) and mytsagent's exec, so apply
+        # the same hostname-charset gate discover.tcl uses at its mydig call
+        # site before using either.
+        if { ![regexp {^[A-Za-z0-9._-]+$} $object] || ![regexp {^[A-Za-z0-9._-]+$} $hostname] } {
+            log "error" "purge: suspicious not-conn object/hostname, skipping: $n"
+            if ($debug) { puts "skip suspicious not-conn line: $n" }
+            continue
+        }
+
         lappend found $object
 
         # double check if the tls socket is not reachable

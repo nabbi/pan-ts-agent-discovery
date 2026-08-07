@@ -14,6 +14,16 @@
 # lines without throwing, and that one malformed line does not prevent
 # well-formed lines elsewhere in the same batch from being parsed correctly.
 #
+# It also checks a second, injection-focused invariant: a bare \r/\n inside a
+# not-conn line is normally just inter-field whitespace to lindex's Tcl-list
+# parsing (harmless), but a brace-/quote-grouped field can carry a literal
+# \r/\n straight through into the parsed object/hostname -- which purge.tcl
+# then feeds into a live `send "...ts-agent $object\r"` and mytsagent's exec.
+# purge.tcl gates object/hostname through the same hostname-charset regex
+# discover.tcl applies to PTR values (^[A-Za-z0-9._-]+$) precisely to close
+# this; this harness proves that gate actually holds against adversarial
+# input rather than trusting the implementation.
+#
 # Run: tclsh src/tests/fuzz-purge-parsing.test.tcl [iterations] [seed]
 # Exits 1 (and prints repro cases) if any invariant is violated.
 
@@ -34,10 +44,17 @@ set corpus [list \
     "connected line, no keyword, should be ignored entirely" \
     "" \
     [string repeat "a" 5000] \
+    "\{server\r01\}   10.0.0.1   5009   vsys1   not-conn:   0/0/0" \
+    "\{server01\r\ndelete vsys vsys1 ts-agent legituser01\}   10.0.0.1   not-conn:   0/0/0" \
+    "server01   \{10.0.0.1\r\}   5009   vsys1   not-conn:   0/0/0" \
+    "\"server\r01\"   10.0.0.1   not-conn:   0/0/0" \
+    "server\[01\]   10.0.0.1   not-conn:   0/0/0" \
+    "server*   10.0.0.1   not-conn:   0/0/0" \
+    "server01,evil   10.0.0.1   not-conn:   0/0/0" \
 ]
 
 # ---- random mutator: combine adversarial fragments ----
-set badfrags [list "\{" "\}" "\"" "\\" "not-conn:" " " "\t" "a" "0" "/" ""]
+set badfrags [list "\{" "\}" "\"" "\\" "not-conn:" " " "\t" "\r" "\n" "\r\n" "a" "0" "/" ""]
 proc randfrag {} {
     global badfrags
     lindex $badfrags [expr {int(rand()*[llength $badfrags])}]
@@ -49,13 +66,17 @@ proc randline {} {
     return $s
 }
 
-# ---- pipeline replication (mirrors purge.tcl's per-line parsing, including its catch) ----
+# ---- pipeline replication (mirrors purge.tcl's per-line parsing exactly,
+# including its malformed-line catch and object/hostname charset gate) ----
 proc purge_parse_line {n} {
     if {![string match "*not-conn:*" $n]} { return {} }
     if {[catch {
         set object   [lindex $n 0]
         set hostname [lindex $n 1]
     }]} {
+        return {}
+    }
+    if { ![regexp {^[A-Za-z0-9._-]+$} $object] || ![regexp {^[A-Za-z0-9._-]+$} $hostname] } {
         return {}
     }
     return [list $object $hostname]
@@ -66,6 +87,21 @@ set violations {}
 proc check {input} {
     if {[catch { purge_parse_line $input } err]} {
         lappend ::violations [list "uncaught-error" $input "purge_parse_line threw: $err"]
+        return
+    }
+    set parsed [purge_parse_line $input]
+    if {[llength $parsed] == 0} { return }
+    lassign $parsed object hostname
+
+    # invariant: no-crlf -- a line that survives the charset gate must never
+    # carry a raw CR/LF in either field into the live send/exec pipeline
+    foreach {label val} [list object $object hostname $hostname] {
+        if {[string first "\r" $val] >= 0 || [string first "\n" $val] >= 0} {
+            lappend ::violations [list "no-crlf" $input "$label=[list $val] contains CR/LF -- would inject an extra command into the live CLI send"]
+        }
+        if {![regexp {^[A-Za-z0-9._-]+$} $val]} {
+            lappend ::violations [list "gate-bypass" $input "$label=[list $val] contains characters outside the hostname charset gate"]
+        }
     }
 }
 

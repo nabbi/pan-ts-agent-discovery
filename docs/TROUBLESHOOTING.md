@@ -173,6 +173,14 @@ fping exit codes: `0` = all reachable, `1` = some unreachable (normal for subnet
 
 `purge.tcl` parses each `not-conn:` line from the firewall as a Tcl list; an unbalanced brace or quote in the device's output throws a parse error. That one line is skipped and logged at `error` level -- it does not abort the rest of the purge run, so other agents in the same batch are still evaluated. A single occurrence is usually a transient CLI formatting glitch; repeated occurrences for the same agent warrant checking `show user ts-agent statistics` directly on the firewall.
 
+### Suspicious not-conn object/hostname, skipping
+
+```
+## purge: suspicious not-conn object/hostname, skipping: {server 01} 10.0.0.1 ...
+```
+
+`purge.tcl` rejects a parsed `object`/`hostname` pair that isn't a plain hostname (`^[A-Za-z0-9._-]+$`), the same charset gate `discover.tcl` applies to PTR values, since both flow unsanitized into a live `delete ...ts-agent $object\r` command. This differs from "Could not parse not-conn line" above: the line parses fine as a Tcl list, but a brace- or quote-grouped field let a character like a literal space or `\r` survive extraction. The agent is skipped for this run; if this fires for a legitimate object name, check the object naming convention on the firewall for characters outside that charset.
+
 ### Logger unavailable
 
 ```

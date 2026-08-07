@@ -43,17 +43,35 @@ send "configure\r"
 myexpect "$prompt#"
 
 
-# input is processed as tcl lists
+# input is processed as tcl lists -- $input itself is walked as a Tcl list
+# below, and Tcl list-whitespace includes \r, not just space/tab/newline. A
+# caller that fails to gate object/host (discover.tcl/purge.tcl both do
+# today) could pass a single "object,host" entry containing an embedded \r
+# or space, which would silently fan out into extra list elements here, each
+# turned into its own live `send`. Validate object/host independently rather
+# than trust the caller, per the hostname-charset policy applied at the
+# mydig call site.
+set skipped_gate 0
 if {[string match $action "add"]} {
     foreach i $input {
         set object [lindex [split $i ","] 0]
         set host [lindex [split $i ","] 1]
+        if { ![regexp {^[A-Za-z0-9._-]+$} $object] || ![regexp {^[A-Za-z0-9._-]+$} $host] } {
+            send_user "\n## Skipping suspicious add entry: $i\n"
+            incr skipped_gate
+            continue
+        }
         send "set vsys $config(vsys) ts-agent $object host $host port 5009 disabled no\r"
         myexpect "$prompt#"
     }
 
 } elseif { [string match $action "delete"] } {
     foreach object $input {
+        if { ![regexp {^[A-Za-z0-9._-]+$} $object] } {
+            send_user "\n## Skipping suspicious delete entry: $object\n"
+            incr skipped_gate
+            continue
+        }
         send "delete vsys $config(vsys) ts-agent $object\r"
         myexpect "$prompt#"
     }
@@ -62,13 +80,14 @@ if {[string match $action "add"]} {
 
 # how many of the attempted objects actually changed the candidate config --
 # every "delete" that hit "Object doesn't exist" (tallied in skipped_deletes by
-# myexpect) was a no-op, not a change. Skip the commit below entirely if nothing
-# was modified, since a commit with no candidate changes is itself an edge case
-# not worth risking (e.g. on PAN-OS versions/behaviors where an empty partial
-# commit errors instead of no-op'ing).
+# myexpect) was a no-op, not a change, and neither was any entry the charset
+# gate above rejected before ever sending it. Skip the commit below entirely
+# if nothing was modified, since a commit with no candidate changes is itself
+# an edge case not worth risking (e.g. on PAN-OS versions/behaviors where an
+# empty partial commit errors instead of no-op'ing).
 set skipped 0
 if { [info exists skipped_deletes] } { set skipped $skipped_deletes }
-set modified [expr {[llength $input] - $skipped}]
+set modified [expr {[llength $input] - $skipped - $skipped_gate}]
 
 # commit comment - escaping spaces was not running clean, do not use them here
 set description "BackgroundInfrastructureTask-TerminalServicesAgent"
