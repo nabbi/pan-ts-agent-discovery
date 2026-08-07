@@ -12,6 +12,16 @@ expect src/tests/myexpect.test.tcl
 expect src/tests/exp-e2e.test.tcl
 ```
 
+Or run everything -- the three suites above plus all four fuzz harnesses
+below -- in one shot:
+
+```shell
+src/tests/run-all.sh                            # tests + fuzz
+src/tests/run-all.sh --tests-only                # skip fuzz
+src/tests/run-all.sh --fuzz-only                 # skip tcltest/expect suite
+src/tests/run-all.sh --iterations 5000 --seed 42 # forwarded to each fuzz harness
+```
+
 ### What is tested
 
 The test suite validates the core logic with mocked external commands (no network or SSH required).
