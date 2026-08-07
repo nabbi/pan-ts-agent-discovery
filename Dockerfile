@@ -2,8 +2,7 @@ FROM alpine:latest
 LABEL maintainer="nic@boet.cc"
 
 RUN apk add --no-cache git fping tcl expect openssl \
-    bind-tools openssh logrotate tini
-RUN apk add --update busybox-suid
+    bind-tools openssh logrotate tini busybox-suid
 
 RUN addgroup -S app && adduser -S -G app app
 
