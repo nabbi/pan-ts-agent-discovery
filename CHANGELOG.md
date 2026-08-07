@@ -11,10 +11,17 @@ throughout.
 
 ## [Unreleased] (since v1.7)
 
-**Upgrade guidance: minor, low urgency.** One real bug fix in `myfping`'s
-input validation; everything else since v1.7 is documentation and diagram
-work.
+**Upgrade guidance: recommended, security-relevant.** Closes three
+defense-in-depth CRLF/charset injection gaps found via an expanded fuzz
+suite and a new end-to-end test harness for the `.exp` scripts that
+previously had no automated coverage at all — take this if you run
+`purge.tcl` or either `tsagent-modify-*.exp` path regularly.
 
+- **security fix:** a `not-conn` line with a brace-/quote-grouped field could carry a literal `\r` through `purge.tcl`'s `lindex`-based parsing into `$object`/`$hostname`, reaching a live `send "...ts-agent $object\r"`. Gated with the same `^[A-Za-z0-9._-]+$` hostname charset check `discover.tcl` already applies to PTR values. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
+- **security fix:** `tsagent-modify-firewall.exp`/`tsagent-modify-panorama.exp` walk their `$input` argument with `foreach i $input`, which parses it as a Tcl list — an embedded `\r` in a single `"object,host"` add entry fanned out into extra list elements, one of which became a live `send` silently overwriting an unrelated, already-configured agent's host with an empty value. Neither script independently validated `object`/`host` before this (found via the new `exp-e2e.test.tcl` harness, which sources the real scripts rather than a mirrored copy). Both now gate on the same charset check, mirrored across the two files. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
+- **fix:** `myfping` iterated `fping`'s raw output with `foreach ip $results`, parsing it as an implicit Tcl list — a stray unbalanced brace/quote token (a malfunctioning/corrupted `fping`) would throw uncaught and crash the entire `discover.tcl` run, with no `catch` protecting it. Fixed by splitting on `\n` first, which never throws. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
+- **fix:** `myfping`'s per-octet IPv4 check used `string is digit` and `expr`'s `>=`/`<=`, both Unicode-aware — a non-ASCII decimal digit (e.g. Arabic-Indic `٥`) could pass as a valid octet, letting a non-IPv4 string slip through as "valid". Now requires a strict ASCII `^[0-9]{1,3}$` match first. ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
+- test: added `exp-e2e.test.tcl` (real end-to-end coverage for `tsagent-configured.exp`/`tsagent-not-connected.exp`/`tsagent-modify-firewall.exp`/`tsagent-modify-panorama.exp`, none of which had any automated test before) and `fuzz-myfping.test.tcl`; extended `fuzz-purge-parsing.test.tcl` with a no-crlf/gate-bypass invariant ([3cb1bcf](https://github.com/nabbi/pan-ts-agent-discovery/commit/3cb1bcf))
 - **fix:** `myfping` accepted malformed addresses (empty string, or fewer than 4 octets, e.g. `"10.0.1"`) — its IPv4 flag defaulted to true and was only ever flipped false by an out-of-range octet, never by a missing one. Now requires exactly 4 dot-separated octets before accepting. ([16080ec](https://github.com/nabbi/pan-ts-agent-discovery/commit/16080ec))
 - known limitation (documented, not fixed): `discover.tcl`'s `agent_host` reconstruction assumes exactly 3 dot-separated labels (`host.domain.tld`) and silently truncates/mangles anything else (nested subdomains, single-label domains, bare hostnames). Left as-is pending review — believed cosmetic since it's a label-only value not resolved by PAN-OS and unrelated to the already-configured match — but now locked in with characterization tests and a code comment. ([16080ec](https://github.com/nabbi/pan-ts-agent-discovery/commit/16080ec))
 - docs: reconciled architecture/function-flow diagrams with current code, corrected a stale README caption ([aa49ec2](https://github.com/nabbi/pan-ts-agent-discovery/commit/aa49ec2), [a364135](https://github.com/nabbi/pan-ts-agent-discovery/commit/a364135), [52c894c](https://github.com/nabbi/pan-ts-agent-discovery/commit/52c894c))
