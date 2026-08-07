@@ -14,8 +14,10 @@ if { [catch { source $path/inc/config.tcl }] } {
 }
 source $path/inc/common-proc.tcl
 
-set time [clock format [clock seconds] -format "%Y-%m-%d %H:%M"]
+set start_epoch [clock seconds]
+set time [clock format $start_epoch -format "%Y-%m-%d %H:%M"]
 if ($info) { puts "## Start PAN TS Agent Discovery $time\n" }
+log "info" "run=discover status=start networks=[llength $config(networks)]"
 
 
 ## icmp reachable test
@@ -134,6 +136,8 @@ if {[string length $add] > 0} {
 } else {
     if ($info) { puts "## All [llength $found] agents discovered are already defined\n"}
 }
+
+log "info" "run=discover status=ok elapsed_sec=[expr {[clock seconds] - $start_epoch}] scanned=[llength $alive] discovered=[llength $found] added=[llength $add]"
 
 set time [clock format [clock seconds] -format "%Y-%m-%d %H:%M"]
 if ($info) { puts "## End PAN TS Agent Discovery $time" }

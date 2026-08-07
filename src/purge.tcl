@@ -15,8 +15,10 @@ if { [catch { source $path/inc/config.tcl }] } {
 source $path/inc/common-proc.tcl
 
 
-set time [clock format [clock seconds] -format "%Y-%m-%d %H:%M"]
+set start_epoch [clock seconds]
+set time [clock format $start_epoch -format "%Y-%m-%d %H:%M"]
 if ($info) { puts "## Start PAN TS Agent Purge $time\n" }
+log "info" "run=purge status=start"
 
 
 ## Delete
@@ -83,6 +85,8 @@ if {[string length $delete] > 0} {
 } elseif { [llength $found] > 0} {
     if ($info) { puts "## Found [llength $found] not-connected agents but they are responding\n"}
 }
+
+log "info" "run=purge status=ok elapsed_sec=[expr {[clock seconds] - $start_epoch}] notconn=[llength $found] deleted=[llength $delete]"
 
 set time [clock format [clock seconds] -format "%Y-%m-%d %H:%M"]
 if ($info) { puts "## End PAN TS Agent Purge $time" }

@@ -2,7 +2,9 @@
 
 SPL and alert definitions for the `error`-level events the scripts write to syslog,
 assuming host syslog is already flowing into Splunk (no file monitoring/onboarding
-covered here).
+covered here). See [Operational status & change metrics](#operational-status--change-metrics)
+below for the `info`-level run-status/summary lines, which are dashboard material
+rather than alert triggers.
 
 ## Log format
 
@@ -170,6 +172,78 @@ device rather than routine DNS hygiene:
 index=paloalto sourcetype=syslog "purge.tcl" "suspicious not-conn"
 | rex field=_raw "suspicious not-conn object/hostname, skipping: (?<line>.+)$"
 | table _time line
+```
+
+## Operational status & change metrics
+
+Separate from the per-host `info` lines above (`new ts-agent <name>` /
+`delete ts-agent <hostname>`), each run of `discover.tcl`/`purge.tcl` also logs one
+`status=start` line at the top of the run and one `status=ok` summary line at the
+bottom, both at `user.info`, in `key=value` form:
+
+```
+run=discover status=start networks=3
+run=discover status=ok elapsed_sec=41 scanned=214 discovered=9 added=2
+run=purge status=start
+run=purge status=ok elapsed_sec=8 notconn=4 deleted=1
+```
+
+Base filter for either line, either job:
+
+```spl
+index=paloalto sourcetype=syslog "run=discover"
+```
+
+(swap `run=discover` for `run=purge` for the purge job; add `status=start` or
+`status=ok` to isolate one or the other).
+
+### Missing-completion alert
+
+A `status=start` with no matching `status=ok` means the run crashed, hung, or was
+killed mid-batch (e.g. a cron timeout) rather than completing normally -- every fatal
+path in `discover.tcl`/`purge.tcl` (`mydig` failure, `myfping` fatal error) `exit 1`s
+without ever reaching its `status=ok` line. Rather than pairing individual events,
+just compare counts over a window sized to the job's expected runtime: they should
+always be equal.
+
+Discovery runs hourly at `:15` and finishes in well under a minute normally, so a
+15-minute lookback comfortably covers one cycle with room to spare:
+
+```spl
+index=paloalto sourcetype=syslog "run=discover" ("status=start" OR "status=ok")
+| rex field=_raw "status=(?<status>start|ok)"
+| stats count(eval(status="start")) as starts count(eval(status="ok")) as oks
+| where starts > oks
+```
+
+Schedule this to run every 15 minutes over `earliest=-20m` (a little slack past the
+lookback avoids edge-of-window misses); any result row means a run started and never
+finished. Same pattern for purge (`run=purge`), but since it's a once-daily job at
+`05:30`, use a window sized to that cadence instead -- e.g. `earliest=-90m` scheduled
+once at `07:00`, well past when a normal run would have finished.
+
+```conf
+[PAN TS Agent - discover run did not complete]
+search = index=paloalto sourcetype=syslog "run=discover" ("status=start" OR "status=ok") | rex field=_raw "status=(?<status>start|ok)" | stats count(eval(status="start")) as starts count(eval(status="ok")) as oks | where starts > oks
+dispatch.earliest_time = -20m
+dispatch.latest_time = now
+cron_schedule = */15 * * * *
+alert.severity = 3
+counttype = number of events
+relation = greater than
+quantity = 0
+enableSched = 1
+```
+
+### Add/delete volume trend
+
+A weekly count of agents added vs. deleted, to spot unusual churn -- informational,
+not alert-worthy on its own:
+
+```spl
+index=paloalto sourcetype=syslog ("run=discover status=ok" OR "run=purge status=ok")
+| rex field=_raw "run=(?<run>\S+) status=ok elapsed_sec=(?<elapsed_sec>\d+).*?(added|deleted)=(?<changed>\d+)"
+| timechart span=1d sum(changed) by run
 ```
 
 ## Example `savedsearches.conf`
